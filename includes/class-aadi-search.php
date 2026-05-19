@@ -20,19 +20,6 @@ defined( 'ABSPATH' ) || exit;
 class AADI_Search {
 
 	/**
-	 * Hard limit for in-PHP cosine scoring.
-	 *
-	 * Libraries over this size should upgrade to Pro for vector-store
-	 * backed search. Surfaced as an admin notice.
-	 */
-	const MAX_SCORED_POSTS = 200;
-
-	/**
-	 * Transient key for the published-post count.
-	 */
-	const COUNT_CACHE_TRANSIENT = 'aadi_post_count_cache';
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {}
@@ -181,7 +168,7 @@ class AADI_Search {
 		$candidate_args = array(
 			'post_type'      => AADI_CPT,
 			'post_status'    => 'publish',
-			'posts_per_page' => self::MAX_SCORED_POSTS,
+			'posts_per_page' => -1,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 			'fields'         => 'ids',
@@ -370,23 +357,5 @@ class AADI_Search {
 	 */
 	private function is_ai_enabled() {
 		return AADI_Settings::is_ai_enabled();
-	}
-
-	/**
-	 * Whether the published library exceeds MAX_SCORED_POSTS.
-	 *
-	 * @return bool
-	 */
-	public static function is_over_limit() {
-		$cached = get_transient( self::COUNT_CACHE_TRANSIENT );
-		if ( false !== $cached ) {
-			return (int) $cached > self::MAX_SCORED_POSTS;
-		}
-
-		$counts = wp_count_posts( AADI_CPT );
-		$count  = isset( $counts->publish ) ? (int) $counts->publish : 0;
-		set_transient( self::COUNT_CACHE_TRANSIENT, $count, HOUR_IN_SECONDS );
-
-		return $count > self::MAX_SCORED_POSTS;
 	}
 }

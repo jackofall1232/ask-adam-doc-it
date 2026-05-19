@@ -162,7 +162,6 @@ class AADI_Loader {
 		add_filter( 'plugin_action_links_' . AADI_PLUGIN_BASENAME, array( $this->admin, 'add_plugin_action_links' ) );
 
 		add_action( 'admin_notices', array( $this->admin, 'render_ai_status_notice' ) );
-		add_action( 'admin_notices', array( $this->admin, 'render_size_limit_notice' ) );
 		add_filter( 'post_row_actions', array( $this->admin, 'add_row_actions' ), 10, 2 );
 		add_action( 'admin_post_aadi_regenerate_embedding', array( $this->admin, 'handle_regenerate_embedding' ) );
 
