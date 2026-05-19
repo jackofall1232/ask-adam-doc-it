@@ -2,29 +2,29 @@
 /**
  * Admin-side controller.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Admin
+ * Class AADI_Admin
  *
  * Handles admin scripts/styles, meta boxes, list-table columns,
  * the settings submenu, and plugin action links.
  */
-class PTAI_Admin {
+class AADI_Admin {
 
 	/**
 	 * Page slug for the settings screen (sits under the CPT menu).
 	 *
 	 * @var string
 	 */
-	const SETTINGS_PAGE_SLUG = 'ptai-settings';
+	const SETTINGS_PAGE_SLUG = 'aadi-settings';
 
 	/**
 	 * Constructor. Intentionally side-effect-free — all hooks live in
-	 * PTAI_Loader::define_admin_hooks().
+	 * AADI_Loader::define_admin_hooks().
 	 */
 	public function __construct() {}
 
@@ -35,9 +35,9 @@ class PTAI_Admin {
 	 */
 	public function register_settings_page() {
 		add_submenu_page(
-			'edit.php?post_type=' . PTAI_CPT,
-			__( 'PaperTrail AI Settings', 'papertrail-ai' ),
-			__( 'Settings', 'papertrail-ai' ),
+			'edit.php?post_type=' . AADI_CPT,
+			__( 'Ask Adam Doc It Settings', 'ask-adam-doc-it' ),
+			__( 'Settings', 'ask-adam-doc-it' ),
 			'manage_options',
 			self::SETTINGS_PAGE_SLUG,
 			array( $this, 'render_settings_page' )
@@ -45,7 +45,7 @@ class PTAI_Admin {
 	}
 
 	/**
-	 * Determine whether the current screen is a PaperTrail AI screen.
+	 * Determine whether the current screen is an Ask Adam Doc It screen.
 	 *
 	 * @param string $hook Current admin page hook.
 	 * @return bool
@@ -54,10 +54,10 @@ class PTAI_Admin {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		if ( $screen instanceof WP_Screen ) {
-			if ( PTAI_CPT === $screen->post_type ) {
+			if ( AADI_CPT === $screen->post_type ) {
 				return true;
 			}
-			if ( PTAI_TAXONOMY === $screen->taxonomy ) {
+			if ( AADI_TAXONOMY === $screen->taxonomy ) {
 				return true;
 			}
 			if ( false !== strpos( (string) $screen->id, self::SETTINGS_PAGE_SLUG ) ) {
@@ -78,10 +78,10 @@ class PTAI_Admin {
 		// Tiny global file — loads on every admin page to keep the
 		// sidebar clipboard icon teal regardless of current screen.
 		wp_enqueue_style(
-			'ptai-admin-global',
-			PTAI_PLUGIN_URL . 'admin/css/admin-global.css',
+			'aadi-admin-global',
+			AADI_PLUGIN_URL . 'admin/css/admin-global.css',
 			array(),
-			PTAI_VERSION
+			AADI_VERSION
 		);
 
 		// Full admin styles only on plugin screens.
@@ -90,10 +90,10 @@ class PTAI_Admin {
 		}
 
 		wp_enqueue_style(
-			'ptai-admin',
-			PTAI_PLUGIN_URL . 'admin/css/admin.css',
-			array( 'ptai-admin-global' ),
-			PTAI_VERSION
+			'aadi-admin',
+			AADI_PLUGIN_URL . 'admin/css/admin.css',
+			array( 'aadi-admin-global' ),
+			AADI_VERSION
 		);
 	}
 
@@ -111,60 +111,60 @@ class PTAI_Admin {
 		wp_enqueue_media();
 
 		wp_enqueue_script(
-			'ptai-admin',
-			PTAI_PLUGIN_URL . 'admin/js/admin.js',
+			'aadi-admin',
+			AADI_PLUGIN_URL . 'admin/js/admin.js',
 			array( 'jquery' ),
-			PTAI_VERSION,
+			AADI_VERSION,
 			true
 		);
 
 		wp_localize_script(
-			'ptai-admin',
-			'ptaiAdmin',
+			'aadi-admin',
+			'aadiAdmin',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'ptai_admin_nonce' ),
+				'nonce'    => wp_create_nonce( 'aadi_admin_nonce' ),
 				'strings'  => array(
-					'select_file'       => __( 'Select or upload a file', 'papertrail-ai' ),
-					'use_this_file'     => __( 'Use this file', 'papertrail-ai' ),
-					'replace_file'      => __( 'Replace file', 'papertrail-ai' ),
-					'remove_file'       => __( 'Remove file', 'papertrail-ai' ),
-					'no_file_attached'  => __( 'No file attached.', 'papertrail-ai' ),
-					'confirm_remove'    => __( 'Remove the attached file? This will not delete it from the media library.', 'papertrail-ai' ),
+					'select_file'       => __( 'Select or upload a file', 'ask-adam-doc-it' ),
+					'use_this_file'     => __( 'Use this file', 'ask-adam-doc-it' ),
+					'replace_file'      => __( 'Replace file', 'ask-adam-doc-it' ),
+					'remove_file'       => __( 'Remove file', 'ask-adam-doc-it' ),
+					'no_file_attached'  => __( 'No file attached.', 'ask-adam-doc-it' ),
+					'confirm_remove'    => __( 'Remove the attached file? This will not delete it from the media library.', 'ask-adam-doc-it' ),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Register meta boxes for the ptai_file CPT.
+	 * Register meta boxes for the aadi_file CPT.
 	 *
 	 * @return void
 	 */
 	public function add_meta_boxes() {
 		add_meta_box(
-			'ptai_file_details',
-			__( 'File Details', 'papertrail-ai' ),
+			'aadi_file_details',
+			__( 'File Details', 'ask-adam-doc-it' ),
 			array( $this, 'render_file_meta_box' ),
-			PTAI_CPT,
+			AADI_CPT,
 			'side',
 			'high'
 		);
 
 		add_meta_box(
-			'ptai_doc_summary_box',
-			__( 'AI Search Summary', 'papertrail-ai' ),
+			'aadi_doc_summary_box',
+			__( 'AI Search Summary', 'ask-adam-doc-it' ),
 			array( $this, 'render_doc_summary_meta_box' ),
-			PTAI_CPT,
+			AADI_CPT,
 			'normal',
 			'high'
 		);
 
 		add_meta_box(
-			'ptai_upgrade_sidebar',
-			__( 'Ask Adam Pro', 'papertrail-ai' ),
+			'aadi_upgrade_sidebar',
+			__( 'Ask Adam Pro', 'ask-adam-doc-it' ),
 			array( $this, 'render_upgrade_meta_box' ),
-			PTAI_CPT,
+			AADI_CPT,
 			'side',
 			'low'
 		);
@@ -177,31 +177,31 @@ class PTAI_Admin {
 	 * @return void
 	 */
 	public function render_doc_summary_meta_box( $post ) {
-		$summary  = (string) get_post_meta( $post->ID, '_ptai_doc_summary', true );
-		$settings = new PTAI_Settings();
+		$summary  = (string) get_post_meta( $post->ID, '_aadi_doc_summary', true );
+		$settings = new AADI_Settings();
 		$ai_on    = $settings->is_ai_enabled();
 
-		wp_nonce_field( 'ptai_save_doc_summary', 'ptai_doc_summary_nonce' );
+		wp_nonce_field( 'aadi_save_doc_summary', 'aadi_doc_summary_nonce' );
 		?>
-		<p class="ptai-meta-description">
-			<?php esc_html_e( 'Used by AI search to understand this document. Write 1-3 sentences describing the content, date, and topic. The more specific, the better the search results.', 'papertrail-ai' ); ?>
+		<p class="aadi-meta-description">
+			<?php esc_html_e( 'Used by AI search to understand this document. Write 1-3 sentences describing the content, date, and topic. The more specific, the better the search results.', 'ask-adam-doc-it' ); ?>
 		</p>
-		<div class="ptai-doc-summary-wrap">
+		<div class="aadi-doc-summary-wrap">
 			<textarea
-				id="ptai_doc_summary"
-				name="_ptai_doc_summary"
+				id="aadi_doc_summary"
+				name="_aadi_doc_summary"
 				class="large-text"
 				rows="4"
 				maxlength="500"
 			><?php echo esc_textarea( $summary ); ?></textarea>
-			<p class="ptai-char-counter">
-				<span class="ptai-char-count">0</span> / 500
-				<?php esc_html_e( 'characters', 'papertrail-ai' ); ?>
+			<p class="aadi-char-counter">
+				<span class="aadi-char-count">0</span> / 500
+				<?php esc_html_e( 'characters', 'ask-adam-doc-it' ); ?>
 			</p>
 		</div>
 		<?php if ( ! $ai_on ) : ?>
-			<p class="ptai-ai-disabled-notice">
-				<?php esc_html_e( 'Add your OpenAI API key in Settings to enable AI search.', 'papertrail-ai' ); ?>
+			<p class="aadi-ai-disabled-notice">
+				<?php esc_html_e( 'Add your OpenAI API key in Settings to enable AI search.', 'ask-adam-doc-it' ); ?>
 			</p>
 		<?php endif; ?>
 		<?php
@@ -214,36 +214,36 @@ class PTAI_Admin {
 	 * @return void
 	 */
 	public function render_file_meta_box( $post ) {
-		wp_nonce_field( 'ptai_save_file_meta', 'ptai_file_meta_nonce' );
+		wp_nonce_field( 'aadi_save_file_meta', 'aadi_file_meta_nonce' );
 
-		$file_id         = (int) get_post_meta( $post->ID, '_ptai_file_id', true );
-		$file_type       = (string) get_post_meta( $post->ID, '_ptai_file_type', true );
-		$file_size       = (int) get_post_meta( $post->ID, '_ptai_file_size', true );
-		$file_ext        = (string) get_post_meta( $post->ID, '_ptai_file_ext', true );
-		$download_count  = (int) get_post_meta( $post->ID, '_ptai_download_count', true );
-		$last_downloaded = (string) get_post_meta( $post->ID, '_ptai_last_downloaded', true );
+		$file_id         = (int) get_post_meta( $post->ID, '_aadi_file_id', true );
+		$file_type       = (string) get_post_meta( $post->ID, '_aadi_file_type', true );
+		$file_size       = (int) get_post_meta( $post->ID, '_aadi_file_size', true );
+		$file_ext        = (string) get_post_meta( $post->ID, '_aadi_file_ext', true );
+		$download_count  = (int) get_post_meta( $post->ID, '_aadi_download_count', true );
+		$last_downloaded = (string) get_post_meta( $post->ID, '_aadi_last_downloaded', true );
 
 		$attachment_url = $file_id ? wp_get_attachment_url( $file_id ) : '';
 		$file_name      = $file_id ? get_the_title( $file_id ) : '';
 
-		echo '<div class="ptai-file-meta">';
+		echo '<div class="aadi-file-meta">';
 		printf(
-			'<input type="hidden" id="ptai_file_id" name="ptai_file_id" value="%d" />',
+			'<input type="hidden" id="aadi_file_id" name="aadi_file_id" value="%d" />',
 			(int) $file_id
 		);
 
-		echo '<div class="ptai-file-meta__current" id="ptai-file-meta-current">';
+		echo '<div class="aadi-file-meta__current" id="aadi-file-meta-current">';
 		if ( $file_id && $attachment_url ) {
 			$icon = $this->icon_for_mime( $file_type );
 			echo '<p><span class="dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span> ';
 			echo '<strong>' . esc_html( $file_name ) . '</strong></p>';
 
-			echo '<ul class="ptai-meta-list">';
+			echo '<ul class="aadi-meta-list">';
 			if ( $file_ext ) {
 				echo '<li>' . esc_html(
 					sprintf(
 						/* translators: %s: file extension. */
-						__( 'Extension: %s', 'papertrail-ai' ),
+						__( 'Extension: %s', 'ask-adam-doc-it' ),
 						strtoupper( $file_ext )
 					)
 				) . '</li>';
@@ -252,7 +252,7 @@ class PTAI_Admin {
 				echo '<li>' . esc_html(
 					sprintf(
 						/* translators: %s: MIME type. */
-						__( 'Type: %s', 'papertrail-ai' ),
+						__( 'Type: %s', 'ask-adam-doc-it' ),
 						$file_type
 					)
 				) . '</li>';
@@ -261,36 +261,36 @@ class PTAI_Admin {
 				echo '<li>' . esc_html(
 					sprintf(
 						/* translators: %s: human-readable file size. */
-						__( 'Size: %s', 'papertrail-ai' ),
+						__( 'Size: %s', 'ask-adam-doc-it' ),
 						size_format( $file_size )
 					)
 				) . '</li>';
 			}
 			echo '</ul>';
 		} else {
-			echo '<p><em>' . esc_html__( 'No file attached.', 'papertrail-ai' ) . '</em></p>';
+			echo '<p><em>' . esc_html__( 'No file attached.', 'ask-adam-doc-it' ) . '</em></p>';
 		}
 		echo '</div>';
 
 		printf(
-			'<p><button type="button" class="button" id="ptai-attach-file">%s</button> ',
-			esc_html( $file_id ? __( 'Replace File', 'papertrail-ai' ) : __( 'Attach File', 'papertrail-ai' ) )
+			'<p><button type="button" class="button" id="aadi-attach-file">%s</button> ',
+			esc_html( $file_id ? __( 'Replace File', 'ask-adam-doc-it' ) : __( 'Attach File', 'ask-adam-doc-it' ) )
 		);
 		if ( $file_id ) {
 			printf(
-				'<button type="button" class="button-link" id="ptai-remove-file">%s</button>',
-				esc_html__( 'Remove', 'papertrail-ai' )
+				'<button type="button" class="button-link" id="aadi-remove-file">%s</button>',
+				esc_html__( 'Remove', 'ask-adam-doc-it' )
 			);
 		}
 		echo '</p>';
 
 		echo '<hr />';
-		echo '<p><strong>' . esc_html__( 'Download statistics', 'papertrail-ai' ) . '</strong></p>';
-		echo '<ul class="ptai-meta-list ptai-meta-list--flush">';
+		echo '<p><strong>' . esc_html__( 'Download statistics', 'ask-adam-doc-it' ) . '</strong></p>';
+		echo '<ul class="aadi-meta-list aadi-meta-list--flush">';
 		echo '<li>' . esc_html(
 			sprintf(
 				/* translators: %d: number of downloads. */
-				_n( '%d download', '%d downloads', $download_count, 'papertrail-ai' ),
+				_n( '%d download', '%d downloads', $download_count, 'ask-adam-doc-it' ),
 				$download_count
 			)
 		) . '</li>';
@@ -300,12 +300,12 @@ class PTAI_Admin {
 			echo '<li>' . esc_html(
 				sprintf(
 					/* translators: %s: formatted date/time. */
-					__( 'Last download: %s', 'papertrail-ai' ),
+					__( 'Last download: %s', 'ask-adam-doc-it' ),
 					$display
 				)
 			) . '</li>';
 		} else {
-			echo '<li>' . esc_html__( 'Never downloaded.', 'papertrail-ai' ) . '</li>';
+			echo '<li>' . esc_html__( 'Never downloaded.', 'ask-adam-doc-it' ) . '</li>';
 		}
 		echo '</ul>';
 		echo '</div>';
@@ -317,8 +317,8 @@ class PTAI_Admin {
 	 * @return void
 	 */
 	public function render_upgrade_meta_box() {
-		if ( class_exists( 'PTAI_Pro' ) ) {
-			$pro = new PTAI_Pro();
+		if ( class_exists( 'AADI_Pro' ) ) {
+			$pro = new AADI_Pro();
 			$pro->render_upgrade_sidebar();
 		}
 	}
@@ -336,12 +336,12 @@ class PTAI_Admin {
 
 		$this->save_doc_summary( $post_id );
 
-		if ( ! isset( $_POST['ptai_file_meta_nonce'] ) ) {
+		if ( ! isset( $_POST['aadi_file_meta_nonce'] ) ) {
 			return;
 		}
 
-		$nonce = sanitize_text_field( wp_unslash( $_POST['ptai_file_meta_nonce'] ) );
-		if ( ! wp_verify_nonce( $nonce, 'ptai_save_file_meta' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['aadi_file_meta_nonce'] ) );
+		if ( ! wp_verify_nonce( $nonce, 'aadi_save_file_meta' ) ) {
 			return;
 		}
 
@@ -349,13 +349,13 @@ class PTAI_Admin {
 			return;
 		}
 
-		$file_id = isset( $_POST['ptai_file_id'] ) ? absint( wp_unslash( $_POST['ptai_file_id'] ) ) : 0;
+		$file_id = isset( $_POST['aadi_file_id'] ) ? absint( wp_unslash( $_POST['aadi_file_id'] ) ) : 0;
 
 		if ( 0 === $file_id ) {
-			delete_post_meta( $post_id, '_ptai_file_id' );
-			delete_post_meta( $post_id, '_ptai_file_type' );
-			delete_post_meta( $post_id, '_ptai_file_size' );
-			delete_post_meta( $post_id, '_ptai_file_ext' );
+			delete_post_meta( $post_id, '_aadi_file_id' );
+			delete_post_meta( $post_id, '_aadi_file_type' );
+			delete_post_meta( $post_id, '_aadi_file_size' );
+			delete_post_meta( $post_id, '_aadi_file_ext' );
 			return;
 		}
 
@@ -374,10 +374,10 @@ class PTAI_Admin {
 		$ext  = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
 		$size = file_exists( $path ) ? (int) filesize( $path ) : 0;
 
-		update_post_meta( $post_id, '_ptai_file_id', $file_id );
-		update_post_meta( $post_id, '_ptai_file_type', sanitize_text_field( $mime ) );
-		update_post_meta( $post_id, '_ptai_file_size', $size );
-		update_post_meta( $post_id, '_ptai_file_ext', sanitize_text_field( $ext ) );
+		update_post_meta( $post_id, '_aadi_file_id', $file_id );
+		update_post_meta( $post_id, '_aadi_file_type', sanitize_text_field( $mime ) );
+		update_post_meta( $post_id, '_aadi_file_size', $size );
+		update_post_meta( $post_id, '_aadi_file_ext', sanitize_text_field( $ext ) );
 	}
 
 	/**
@@ -393,19 +393,19 @@ class PTAI_Admin {
 			$new_columns['cb'] = $columns['cb'];
 		}
 
-		$new_columns['title']           = isset( $columns['title'] ) ? $columns['title'] : __( 'Title', 'papertrail-ai' );
-		$new_columns['file_type']       = __( 'File Type', 'papertrail-ai' );
-		$new_columns['file_size']       = __( 'File Size', 'papertrail-ai' );
-		$new_columns['download_count']  = __( 'Downloads', 'papertrail-ai' );
-		$new_columns['last_downloaded'] = __( 'Last Downloaded', 'papertrail-ai' );
+		$new_columns['title']           = isset( $columns['title'] ) ? $columns['title'] : __( 'Title', 'ask-adam-doc-it' );
+		$new_columns['file_type']       = __( 'File Type', 'ask-adam-doc-it' );
+		$new_columns['file_size']       = __( 'File Size', 'ask-adam-doc-it' );
+		$new_columns['download_count']  = __( 'Downloads', 'ask-adam-doc-it' );
+		$new_columns['last_downloaded'] = __( 'Last Downloaded', 'ask-adam-doc-it' );
 
 		// Preserve the taxonomy column if WP added it.
-		$tax_col = 'taxonomy-' . PTAI_TAXONOMY;
+		$tax_col = 'taxonomy-' . AADI_TAXONOMY;
 		if ( isset( $columns[ $tax_col ] ) ) {
 			$new_columns[ $tax_col ] = $columns[ $tax_col ];
 		}
 
-		$new_columns['date'] = isset( $columns['date'] ) ? $columns['date'] : __( 'Date', 'papertrail-ai' );
+		$new_columns['date'] = isset( $columns['date'] ) ? $columns['date'] : __( 'Date', 'ask-adam-doc-it' );
 
 		return $new_columns;
 	}
@@ -420,10 +420,10 @@ class PTAI_Admin {
 	public function populate_admin_column( $column, $post_id ) {
 		switch ( $column ) {
 			case 'file_type':
-				$mime = (string) get_post_meta( $post_id, '_ptai_file_type', true );
-				$ext  = (string) get_post_meta( $post_id, '_ptai_file_ext', true );
+				$mime = (string) get_post_meta( $post_id, '_aadi_file_type', true );
+				$ext  = (string) get_post_meta( $post_id, '_aadi_file_ext', true );
 				if ( '' === $mime && '' === $ext ) {
-					echo '<span aria-hidden="true">—</span><span class="screen-reader-text">' . esc_html__( 'No file', 'papertrail-ai' ) . '</span>';
+					echo '<span aria-hidden="true">—</span><span class="screen-reader-text">' . esc_html__( 'No file', 'ask-adam-doc-it' ) . '</span>';
 					return;
 				}
 				$icon  = $this->icon_for_mime( $mime );
@@ -436,17 +436,17 @@ class PTAI_Admin {
 				break;
 
 			case 'file_size':
-				$size = (int) get_post_meta( $post_id, '_ptai_file_size', true );
+				$size = (int) get_post_meta( $post_id, '_aadi_file_size', true );
 				echo $size > 0 ? esc_html( size_format( $size ) ) : '<span aria-hidden="true">—</span>';
 				break;
 
 			case 'download_count':
-				$count = (int) get_post_meta( $post_id, '_ptai_download_count', true );
+				$count = (int) get_post_meta( $post_id, '_aadi_download_count', true );
 				echo esc_html( number_format_i18n( $count ) );
 				break;
 
 			case 'last_downloaded':
-				$last = (string) get_post_meta( $post_id, '_ptai_last_downloaded', true );
+				$last = (string) get_post_meta( $post_id, '_aadi_last_downloaded', true );
 				if ( '' === $last ) {
 					echo '<span aria-hidden="true">—</span>';
 					return;
@@ -480,16 +480,16 @@ class PTAI_Admin {
 		if ( ! is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
-		if ( PTAI_CPT !== $query->get( 'post_type' ) ) {
+		if ( AADI_CPT !== $query->get( 'post_type' ) ) {
 			return;
 		}
 
 		$orderby = $query->get( 'orderby' );
 		if ( 'download_count' === $orderby ) {
-			$query->set( 'meta_key', '_ptai_download_count' );
+			$query->set( 'meta_key', '_aadi_download_count' );
 			$query->set( 'orderby', 'meta_value_num' );
 		} elseif ( 'last_downloaded' === $orderby ) {
-			$query->set( 'meta_key', '_ptai_last_downloaded' );
+			$query->set( 'meta_key', '_aadi_last_downloaded' );
 			$query->set( 'orderby', 'meta_value' );
 		}
 	}
@@ -501,18 +501,18 @@ class PTAI_Admin {
 	 * @return array
 	 */
 	public function add_plugin_action_links( $links ) {
-		$settings_url = admin_url( 'edit.php?post_type=' . PTAI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
+		$settings_url = admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
 
 		$prepend = array(
 			'settings' => sprintf(
 				'<a href="%1$s">%2$s</a>',
 				esc_url( $settings_url ),
-				esc_html__( 'Settings', 'papertrail-ai' )
+				esc_html__( 'Settings', 'ask-adam-doc-it' )
 			),
 			'upgrade'  => sprintf(
-				'<a href="%1$s" class="ptai-action-link-upgrade" target="_blank" rel="noopener noreferrer">%2$s</a>',
+				'<a href="%1$s" class="aadi-action-link-upgrade" target="_blank" rel="noopener noreferrer">%2$s</a>',
 				esc_url( 'https://askadamit.com/purchase' ),
-				esc_html__( 'Upgrade to Pro', 'papertrail-ai' )
+				esc_html__( 'Upgrade to Pro', 'ask-adam-doc-it' )
 			),
 		);
 
@@ -529,27 +529,27 @@ class PTAI_Admin {
 			return;
 		}
 		?>
-		<div class="wrap ptai-settings-wrap ptai-no-js">
+		<div class="wrap aadi-settings-wrap aadi-no-js">
 
-			<div class="ptai-admin-hero">
-				<div class="ptai-admin-hero__inner">
-					<div class="ptai-admin-hero__icon" aria-hidden="true">
+			<div class="aadi-admin-hero">
+				<div class="aadi-admin-hero__inner">
+					<div class="aadi-admin-hero__icon" aria-hidden="true">
 						<span class="dashicons dashicons-clipboard"></span>
 					</div>
-					<div class="ptai-admin-hero__text">
-						<h1 class="ptai-admin-hero__title">
-							<?php esc_html_e( 'PaperTrail AI', 'papertrail-ai' ); ?>
+					<div class="aadi-admin-hero__text">
+						<h1 class="aadi-admin-hero__title">
+							<?php esc_html_e( 'Ask Adam Doc It', 'ask-adam-doc-it' ); ?>
 						</h1>
-						<p class="ptai-admin-hero__subtitle">
+						<p class="aadi-admin-hero__subtitle">
 							<?php esc_html_e(
 								'Smart Document Library — Part of the Ask Adam Suite',
-								'papertrail-ai'
+								'ask-adam-doc-it'
 							); ?>
 						</p>
 					</div>
-					<div class="ptai-admin-hero__badge">
-						<span class="ptai-version-badge">
-							v<?php echo esc_html( PTAI_VERSION ); ?>
+					<div class="aadi-admin-hero__badge">
+						<span class="aadi-version-badge">
+							v<?php echo esc_html( AADI_VERSION ); ?>
 						</span>
 					</div>
 				</div>
@@ -557,102 +557,102 @@ class PTAI_Admin {
 
 			<?php settings_errors(); ?>
 
-			<nav class="ptai-tab-nav" role="tablist"
-				aria-label="<?php esc_attr_e( 'Settings sections', 'papertrail-ai' ); ?>">
-				<button class="ptai-tab-btn ptai-tab-btn--active"
+			<nav class="aadi-tab-nav" role="tablist"
+				aria-label="<?php esc_attr_e( 'Settings sections', 'ask-adam-doc-it' ); ?>">
+				<button class="aadi-tab-btn aadi-tab-btn--active"
 						id="tab-btn-ai"
 						role="tab"
 						aria-selected="true"
-						aria-controls="ptai-tab-ai"
-						data-tab="ptai-tab-ai">
+						aria-controls="aadi-tab-ai"
+						data-tab="aadi-tab-ai">
 					<span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
-					<?php esc_html_e( 'AI Configuration', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'AI Configuration', 'ask-adam-doc-it' ); ?>
 				</button>
-				<button class="ptai-tab-btn"
+				<button class="aadi-tab-btn"
 						id="tab-btn-uploads"
 						role="tab"
 						aria-selected="false"
-						aria-controls="ptai-tab-uploads"
-						data-tab="ptai-tab-uploads">
+						aria-controls="aadi-tab-uploads"
+						data-tab="aadi-tab-uploads">
 					<span class="dashicons dashicons-upload" aria-hidden="true"></span>
-					<?php esc_html_e( 'Upload Settings', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Upload Settings', 'ask-adam-doc-it' ); ?>
 				</button>
-				<button class="ptai-tab-btn"
+				<button class="aadi-tab-btn"
 						id="tab-btn-access"
 						role="tab"
 						aria-selected="false"
-						aria-controls="ptai-tab-access"
-						data-tab="ptai-tab-access">
+						aria-controls="aadi-tab-access"
+						data-tab="aadi-tab-access">
 					<span class="dashicons dashicons-groups" aria-hidden="true"></span>
-					<?php esc_html_e( 'Access Control', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Access Control', 'ask-adam-doc-it' ); ?>
 				</button>
-				<button class="ptai-tab-btn"
+				<button class="aadi-tab-btn"
 						id="tab-btn-advanced"
 						role="tab"
 						aria-selected="false"
-						aria-controls="ptai-tab-advanced"
-						data-tab="ptai-tab-advanced">
+						aria-controls="aadi-tab-advanced"
+						data-tab="aadi-tab-advanced">
 					<span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
-					<?php esc_html_e( 'Advanced', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Advanced', 'ask-adam-doc-it' ); ?>
 				</button>
-				<button class="ptai-tab-btn"
+				<button class="aadi-tab-btn"
 						id="tab-btn-help"
 						role="tab"
 						aria-selected="false"
-						aria-controls="ptai-tab-help"
-						data-tab="ptai-tab-help">
+						aria-controls="aadi-tab-help"
+						data-tab="aadi-tab-help">
 					<span class="dashicons dashicons-editor-help" aria-hidden="true"></span>
-					<?php esc_html_e( 'How to Use', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'How to Use', 'ask-adam-doc-it' ); ?>
 				</button>
 			</nav>
 
-			<div class="ptai-settings-layout">
-				<div class="ptai-settings-main">
+			<div class="aadi-settings-layout">
+				<div class="aadi-settings-main">
 
 					<form method="post" action="options.php">
 						<?php
-						settings_fields( PTAI_Settings::SETTINGS_GROUP );
+						settings_fields( AADI_Settings::SETTINGS_GROUP );
 
 						global $wp_settings_sections;
-						$page_sections = isset( $wp_settings_sections[ PTAI_Settings::PAGE_SLUG ] )
-							? $wp_settings_sections[ PTAI_Settings::PAGE_SLUG ]
+						$page_sections = isset( $wp_settings_sections[ AADI_Settings::PAGE_SLUG ] )
+							? $wp_settings_sections[ AADI_Settings::PAGE_SLUG ]
 							: array();
 
 						$sections = array(
-							'ptai-tab-ai'       => array(
-								'section_id' => 'ptai_section_ai',
+							'aadi-tab-ai'       => array(
+								'section_id' => 'aadi_section_ai',
 								'icon'       => 'superhero-alt',
-								'title'      => __( 'AI Configuration', 'papertrail-ai' ),
+								'title'      => __( 'AI Configuration', 'ask-adam-doc-it' ),
 							),
-							'ptai-tab-uploads'  => array(
-								'section_id' => 'ptai_section_uploads',
+							'aadi-tab-uploads'  => array(
+								'section_id' => 'aadi_section_uploads',
 								'icon'       => 'upload',
-								'title'      => __( 'Upload Settings', 'papertrail-ai' ),
+								'title'      => __( 'Upload Settings', 'ask-adam-doc-it' ),
 							),
-							'ptai-tab-access'   => array(
-								'section_id' => 'ptai_section_access',
+							'aadi-tab-access'   => array(
+								'section_id' => 'aadi_section_access',
 								'icon'       => 'groups',
-								'title'      => __( 'Access Control', 'papertrail-ai' ),
+								'title'      => __( 'Access Control', 'ask-adam-doc-it' ),
 							),
-							'ptai-tab-advanced' => array(
-								'section_id' => 'ptai_section_advanced',
+							'aadi-tab-advanced' => array(
+								'section_id' => 'aadi_section_advanced',
 								'icon'       => 'admin-tools',
-								'title'      => __( 'Advanced', 'papertrail-ai' ),
+								'title'      => __( 'Advanced', 'ask-adam-doc-it' ),
 							),
 						);
 
 						$first = true;
 						foreach ( $sections as $tab_id => $info ) {
 							$section_id = $info['section_id'];
-							$btn_id     = str_replace( 'ptai-tab-', 'tab-btn-', $tab_id );
-							$active     = $first ? ' ptai-tab-panel--active' : '';
+							$btn_id     = str_replace( 'aadi-tab-', 'tab-btn-', $tab_id );
+							$active     = $first ? ' aadi-tab-panel--active' : '';
 							?>
 							<div id="<?php echo esc_attr( $tab_id ); ?>"
-								class="ptai-tab-panel<?php echo esc_attr( $active ); ?>"
+								class="aadi-tab-panel<?php echo esc_attr( $active ); ?>"
 								role="tabpanel"
 								aria-labelledby="<?php echo esc_attr( $btn_id ); ?>">
-								<div class="ptai-panel-card">
-									<h2 class="ptai-panel-heading">
+								<div class="aadi-panel-card">
+									<h2 class="aadi-panel-heading">
 										<span class="dashicons dashicons-<?php echo esc_attr( $info['icon'] ); ?>"
 											aria-hidden="true"></span>
 										<?php echo esc_html( $info['title'] ); ?>
@@ -667,7 +667,7 @@ class PTAI_Admin {
 									// add_settings_section would silently disappear.
 									if ( isset( $page_sections[ $section_id ]['callback'] )
 										&& is_callable( $page_sections[ $section_id ]['callback'] ) ) {
-										echo '<div class="ptai-panel-description">';
+										echo '<div class="aadi-panel-description">';
 										call_user_func(
 											$page_sections[ $section_id ]['callback'],
 											$page_sections[ $section_id ]
@@ -679,7 +679,7 @@ class PTAI_Admin {
 										<tbody>
 											<?php
 											do_settings_fields(
-												PTAI_Settings::PAGE_SLUG,
+												AADI_Settings::PAGE_SLUG,
 												$section_id
 											);
 											?>
@@ -707,19 +707,19 @@ class PTAI_Admin {
 							if ( in_array( $section['id'], $known_section_ids, true ) ) {
 								continue;
 							}
-							echo '<div class="ptai-panel-card">';
+							echo '<div class="aadi-panel-card">';
 							if ( ! empty( $section['title'] ) ) {
-								echo '<h2 class="ptai-panel-heading">'
+								echo '<h2 class="aadi-panel-heading">'
 									. esc_html( $section['title'] )
 									. '</h2>';
 							}
 							if ( ! empty( $section['callback'] ) && is_callable( $section['callback'] ) ) {
-								echo '<div class="ptai-panel-description">';
+								echo '<div class="aadi-panel-description">';
 								call_user_func( $section['callback'], $section );
 								echo '</div>';
 							}
 							echo '<table class="form-table" role="presentation"><tbody>';
-							do_settings_fields( PTAI_Settings::PAGE_SLUG, $section['id'] );
+							do_settings_fields( AADI_Settings::PAGE_SLUG, $section['id'] );
 							echo '</tbody></table>';
 							echo '</div>';
 						}
@@ -728,18 +728,18 @@ class PTAI_Admin {
 						<?php submit_button(); ?>
 					</form>
 
-					<div id="ptai-tab-help"
-						class="ptai-tab-panel"
+					<div id="aadi-tab-help"
+						class="aadi-tab-panel"
 						role="tabpanel"
 						aria-labelledby="tab-btn-help">
 						<?php $this->render_help_tab(); ?>
 					</div>
 
 				</div>
-				<div class="ptai-settings-sidebar">
+				<div class="aadi-settings-sidebar">
 					<?php
-					if ( class_exists( 'PTAI_Pro' ) ) {
-						$pro = new PTAI_Pro();
+					if ( class_exists( 'AADI_Pro' ) ) {
+						$pro = new AADI_Pro();
 						$pro->render_upgrade_sidebar();
 					}
 					?>
@@ -759,234 +759,234 @@ class PTAI_Admin {
 	 */
 	private function render_help_tab() {
 		?>
-		<div class="ptai-help">
+		<div class="aadi-help">
 
 			<!-- Getting Started -->
-			<div class="ptai-help__section">
-				<h2 class="ptai-help__heading">
+			<div class="aadi-help__section">
+				<h2 class="aadi-help__heading">
 					<span class="dashicons dashicons-rocket"
 						aria-hidden="true"></span>
-					<?php esc_html_e( 'Getting Started', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Getting Started', 'ask-adam-doc-it' ); ?>
 				</h2>
-				<ol class="ptai-help__steps">
+				<ol class="aadi-help__steps">
 					<li>
-						<strong><?php esc_html_e( 'Add a document', 'papertrail-ai' ); ?></strong>
+						<strong><?php esc_html_e( 'Add a document', 'ask-adam-doc-it' ); ?></strong>
 						<p><?php esc_html_e(
-							'Go to PaperTrail → Add New. Give your document a title, attach a file using the File Details meta box, and assign a category.',
-							'papertrail-ai'
+							'Go to Ask Adam Doc It → Add New. Give your document a title, attach a file using the File Details meta box, and assign a category.',
+							'ask-adam-doc-it'
 						); ?></p>
 					</li>
 					<li>
-						<strong><?php esc_html_e( 'Write an AI Search Summary', 'papertrail-ai' ); ?></strong>
+						<strong><?php esc_html_e( 'Write an AI Search Summary', 'ask-adam-doc-it' ); ?></strong>
 						<p><?php esc_html_e(
 							'Fill in the AI Search Summary field with 1–3 sentences describing the document content, date, and topic. This is what AI search uses to understand your document.',
-							'papertrail-ai'
+							'ask-adam-doc-it'
 						); ?></p>
 					</li>
 					<li>
-						<strong><?php esc_html_e( 'Enable AI search (optional)', 'papertrail-ai' ); ?></strong>
+						<strong><?php esc_html_e( 'Enable AI search (optional)', 'ask-adam-doc-it' ); ?></strong>
 						<p><?php
 						printf(
 							wp_kses(
 								/* translators: %s: settings tab link */
-								__( 'Add your OpenAI API key in the <a href="%s">AI Configuration tab</a>. The plugin works fully without it using keyword search.', 'papertrail-ai' ),
+								__( 'Add your OpenAI API key in the <a href="%s">AI Configuration tab</a>. The plugin works fully without it using keyword search.', 'ask-adam-doc-it' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
-							esc_url( admin_url( 'edit.php?post_type=' . PTAI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG ) )
+							esc_url( admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG ) )
 						);
 						?></p>
 					</li>
 					<li>
-						<strong><?php esc_html_e( 'Embed your library', 'papertrail-ai' ); ?></strong>
+						<strong><?php esc_html_e( 'Embed your library', 'ask-adam-doc-it' ); ?></strong>
 						<p><?php esc_html_e(
 							'Use the shortcode or Gutenberg block on any page or post to display your document library.',
-							'papertrail-ai'
+							'ask-adam-doc-it'
 						); ?></p>
 					</li>
 				</ol>
 			</div>
 
 			<!-- Shortcode Reference -->
-			<div class="ptai-help__section">
-				<h2 class="ptai-help__heading">
+			<div class="aadi-help__section">
+				<h2 class="aadi-help__heading">
 					<span class="dashicons dashicons-shortcode"
 						aria-hidden="true"></span>
-					<?php esc_html_e( 'Shortcode Reference', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Shortcode Reference', 'ask-adam-doc-it' ); ?>
 				</h2>
 				<p><?php esc_html_e(
-					'Use the [papertrail] shortcode on any page or post.',
-					'papertrail-ai'
+					'Use the [ask_adam_doc_it] shortcode on any page or post.',
+					'ask-adam-doc-it'
 				); ?></p>
 
-				<table class="ptai-help__table widefat">
+				<table class="aadi-help__table widefat">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'Attribute', 'papertrail-ai' ); ?></th>
-							<th><?php esc_html_e( 'Default', 'papertrail-ai' ); ?></th>
-							<th><?php esc_html_e( 'Description', 'papertrail-ai' ); ?></th>
+							<th><?php esc_html_e( 'Attribute', 'ask-adam-doc-it' ); ?></th>
+							<th><?php esc_html_e( 'Default', 'ask-adam-doc-it' ); ?></th>
+							<th><?php esc_html_e( 'Description', 'ask-adam-doc-it' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
 							<td><code>category</code></td>
 							<td><code>""</code></td>
-							<td><?php esc_html_e( 'Category slug or term ID to filter results.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Category slug or term ID to filter results.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>per_page</code></td>
 							<td><code>10</code></td>
-							<td><?php esc_html_e( 'Number of documents per page (1–50).', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Number of documents per page (1–50).', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>columns</code></td>
 							<td><code>1</code></td>
-							<td><?php esc_html_e( 'Display in 1 or 2 columns.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Display in 1 or 2 columns.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>show_search</code></td>
 							<td><code>true</code></td>
-							<td><?php esc_html_e( 'Show or hide the search bar.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Show or hide the search bar.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>mode</code></td>
 							<td><code>auto</code></td>
-							<td><?php esc_html_e( 'Search mode: auto, ai, or core. Auto uses AI when configured, falls back to keyword search.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Search mode: auto, ai, or core. Auto uses AI when configured, falls back to keyword search.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>orderby</code></td>
 							<td><code>date</code></td>
-							<td><?php esc_html_e( 'Sort by: date, title, or downloads.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Sort by: date, title, or downloads.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 						<tr>
 							<td><code>order</code></td>
 							<td><code>DESC</code></td>
-							<td><?php esc_html_e( 'Sort direction: DESC or ASC.', 'papertrail-ai' ); ?></td>
+							<td><?php esc_html_e( 'Sort direction: DESC or ASC.', 'ask-adam-doc-it' ); ?></td>
 						</tr>
 					</tbody>
 				</table>
 
 				<!-- Code examples -->
-				<div class="ptai-help__examples">
-					<p class="ptai-help__example-label">
-						<?php esc_html_e( 'Examples:', 'papertrail-ai' ); ?>
+				<div class="aadi-help__examples">
+					<p class="aadi-help__example-label">
+						<?php esc_html_e( 'Examples:', 'ask-adam-doc-it' ); ?>
 					</p>
-					<div class="ptai-help__code-block">
-						<code>[papertrail]</code>
-						<span class="ptai-help__code-note">
-							<?php esc_html_e( '— Show all documents', 'papertrail-ai' ); ?>
+					<div class="aadi-help__code-block">
+						<code>[ask_adam_doc_it]</code>
+						<span class="aadi-help__code-note">
+							<?php esc_html_e( '— Show all documents', 'ask-adam-doc-it' ); ?>
 						</span>
 					</div>
-					<div class="ptai-help__code-block">
-						<code>[papertrail category="newsletters" per_page="20" columns="2"]</code>
-						<span class="ptai-help__code-note">
-							<?php esc_html_e( '— Newsletters in 2-column grid', 'papertrail-ai' ); ?>
+					<div class="aadi-help__code-block">
+						<code>[ask_adam_doc_it category="newsletters" per_page="20" columns="2"]</code>
+						<span class="aadi-help__code-note">
+							<?php esc_html_e( '— Newsletters in 2-column grid', 'ask-adam-doc-it' ); ?>
 						</span>
 					</div>
-					<div class="ptai-help__code-block">
-						<code>[papertrail mode="core" show_search="false"]</code>
-						<span class="ptai-help__code-note">
-							<?php esc_html_e( '— Keyword search, no search bar', 'papertrail-ai' ); ?>
+					<div class="aadi-help__code-block">
+						<code>[ask_adam_doc_it mode="core" show_search="false"]</code>
+						<span class="aadi-help__code-note">
+							<?php esc_html_e( '— Keyword search, no search bar', 'ask-adam-doc-it' ); ?>
 						</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- AI Search Explained -->
-			<div class="ptai-help__section">
-				<h2 class="ptai-help__heading">
+			<div class="aadi-help__section">
+				<h2 class="aadi-help__heading">
 					<span class="dashicons dashicons-superhero-alt"
 						aria-hidden="true"></span>
-					<?php esc_html_e( 'How AI Search Works', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'How AI Search Works', 'ask-adam-doc-it' ); ?>
 				</h2>
 				<p><?php esc_html_e(
 					'AI search uses OpenAI embeddings to find documents by meaning rather than exact keywords. A visitor searching for "quarterly financial results" will find documents about "Q3 earnings report" even if those words do not match.',
-					'papertrail-ai'
+					'ask-adam-doc-it'
 				); ?></p>
-				<h3 class="ptai-help__subheading">
-					<?php esc_html_e( 'What gets embedded', 'papertrail-ai' ); ?>
+				<h3 class="aadi-help__subheading">
+					<?php esc_html_e( 'What gets embedded', 'ask-adam-doc-it' ); ?>
 				</h3>
-				<ul class="ptai-help__list">
-					<li><?php esc_html_e( 'Document title', 'papertrail-ai' ); ?></li>
-					<li><?php esc_html_e( 'Post excerpt', 'papertrail-ai' ); ?></li>
-					<li><?php esc_html_e( 'AI Search Summary field (most important)', 'papertrail-ai' ); ?></li>
-					<li><?php esc_html_e( 'Category names', 'papertrail-ai' ); ?></li>
+				<ul class="aadi-help__list">
+					<li><?php esc_html_e( 'Document title', 'ask-adam-doc-it' ); ?></li>
+					<li><?php esc_html_e( 'Post excerpt', 'ask-adam-doc-it' ); ?></li>
+					<li><?php esc_html_e( 'AI Search Summary field (most important)', 'ask-adam-doc-it' ); ?></li>
+					<li><?php esc_html_e( 'Category names', 'ask-adam-doc-it' ); ?></li>
 				</ul>
-				<h3 class="ptai-help__subheading">
-					<?php esc_html_e( 'Embedding status badges', 'papertrail-ai' ); ?>
+				<h3 class="aadi-help__subheading">
+					<?php esc_html_e( 'Embedding status badges', 'ask-adam-doc-it' ); ?>
 				</h3>
-				<ul class="ptai-help__badge-legend">
+				<ul class="aadi-help__badge-legend">
 					<li>
-						<span class="ptai-status-badge ptai-status-badge--current">
-							<?php esc_html_e( 'Embedding current', 'papertrail-ai' ); ?>
+						<span class="aadi-status-badge aadi-status-badge--current">
+							<?php esc_html_e( 'Embedding current', 'ask-adam-doc-it' ); ?>
 						</span>
-						<?php esc_html_e( '— Document is indexed and ready.', 'papertrail-ai' ); ?>
+						<?php esc_html_e( '— Document is indexed and ready.', 'ask-adam-doc-it' ); ?>
 					</li>
 					<li>
-						<span class="ptai-status-badge ptai-status-badge--stale">
-							<?php esc_html_e( 'Embedding stale', 'papertrail-ai' ); ?>
+						<span class="aadi-status-badge aadi-status-badge--stale">
+							<?php esc_html_e( 'Embedding stale', 'ask-adam-doc-it' ); ?>
 						</span>
-						<?php esc_html_e( '— Document was edited since last index. Will update automatically on next save.', 'papertrail-ai' ); ?>
+						<?php esc_html_e( '— Document was edited since last index. Will update automatically on next save.', 'ask-adam-doc-it' ); ?>
 					</li>
 					<li>
-						<span class="ptai-status-badge ptai-status-badge--missing">
-							<?php esc_html_e( 'No embedding', 'papertrail-ai' ); ?>
+						<span class="aadi-status-badge aadi-status-badge--missing">
+							<?php esc_html_e( 'No embedding', 'ask-adam-doc-it' ); ?>
 						</span>
-						<?php esc_html_e( '— Not yet indexed. Save the document or use Regenerate Embedding.', 'papertrail-ai' ); ?>
+						<?php esc_html_e( '— Not yet indexed. Save the document or use Regenerate Embedding.', 'ask-adam-doc-it' ); ?>
 					</li>
 				</ul>
-				<p class="ptai-help__note">
+				<p class="aadi-help__note">
 					<span class="dashicons dashicons-info-outline"
 						aria-hidden="true"></span>
 					<?php esc_html_e(
-						'API cost note: PaperTrail AI uses text-embedding-3-small — one of OpenAI\'s most affordable models. Indexing a typical document summary costs a fraction of a cent.',
-						'papertrail-ai'
+						'API cost note: Ask Adam Doc It uses text-embedding-3-small — one of OpenAI\'s most affordable models. Indexing a typical document summary costs a fraction of a cent.',
+						'ask-adam-doc-it'
 					); ?>
 				</p>
 			</div>
 
 			<!-- Download Tracking -->
-			<div class="ptai-help__section">
-				<h2 class="ptai-help__heading">
+			<div class="aadi-help__section">
+				<h2 class="aadi-help__heading">
 					<span class="dashicons dashicons-download"
 						aria-hidden="true"></span>
-					<?php esc_html_e( 'Download Tracking', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Download Tracking', 'ask-adam-doc-it' ); ?>
 				</h2>
 				<p><?php esc_html_e(
 					'Every file download is routed through a WordPress REST endpoint which increments the download counter before serving the file. Counts are rate-limited to one per document per hour using a hashed token — no IP addresses or personal data are stored.',
-					'papertrail-ai'
+					'ask-adam-doc-it'
 				); ?></p>
 				<p><?php esc_html_e(
 					'Download counts appear in the Documents list table and are sortable. Use them to identify your most popular documents and retire unused ones.',
-					'papertrail-ai'
+					'ask-adam-doc-it'
 				); ?></p>
 			</div>
 
 			<!-- Need More -->
-			<div class="ptai-help__section ptai-help__section--cta">
-				<h2 class="ptai-help__heading">
+			<div class="aadi-help__section aadi-help__section--cta">
+				<h2 class="aadi-help__heading">
 					<span class="dashicons dashicons-external"
 						aria-hidden="true"></span>
-					<?php esc_html_e( 'Need More?', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Need More?', 'ask-adam-doc-it' ); ?>
 				</h2>
 				<p><?php esc_html_e(
-					'PaperTrail AI is part of the Ask Adam suite. Ask Adam Pro adds conversational document Q&A, multi-document context retrieval, bulk indexing, analytics, and priority support.',
-					'papertrail-ai'
+					'Ask Adam Doc It is part of the Ask Adam suite. Ask Adam Pro adds conversational document Q&A, multi-document context retrieval, bulk indexing, analytics, and priority support.',
+					'ask-adam-doc-it'
 				); ?></p>
 				<a href="<?php echo esc_url( 'https://askadamit.com/purchase' ); ?>"
-					class="button button-primary ptai-help__cta-btn"
+					class="button button-primary aadi-help__cta-btn"
 					target="_blank"
 					rel="noopener noreferrer">
-					<?php esc_html_e( 'Learn about Ask Adam Pro', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Learn about Ask Adam Pro', 'ask-adam-doc-it' ); ?>
 				</a>
 				<a href="<?php echo esc_url( 'https://askadamit.com' ); ?>"
-					class="button ptai-help__cta-btn"
+					class="button aadi-help__cta-btn"
 					target="_blank"
 					rel="noopener noreferrer">
-					<?php esc_html_e( 'Visit askadamit.com', 'papertrail-ai' ); ?>
+					<?php esc_html_e( 'Visit askadamit.com', 'ask-adam-doc-it' ); ?>
 				</a>
 			</div>
 
-		</div><!-- .ptai-help -->
+		</div><!-- .aadi-help -->
 		<?php
 	}
 
@@ -1029,12 +1029,12 @@ class PTAI_Admin {
 	 * @return void
 	 */
 	private function save_doc_summary( $post_id ) {
-		if ( ! isset( $_POST['ptai_doc_summary_nonce'] ) ) {
+		if ( ! isset( $_POST['aadi_doc_summary_nonce'] ) ) {
 			return;
 		}
 		if ( ! wp_verify_nonce(
-			sanitize_key( wp_unslash( $_POST['ptai_doc_summary_nonce'] ) ),
-			'ptai_save_doc_summary'
+			sanitize_key( wp_unslash( $_POST['aadi_doc_summary_nonce'] ) ),
+			'aadi_save_doc_summary'
 		) ) {
 			return;
 		}
@@ -1042,40 +1042,72 @@ class PTAI_Admin {
 			return;
 		}
 
-		$summary = isset( $_POST['_ptai_doc_summary'] )
-			? sanitize_textarea_field( wp_unslash( $_POST['_ptai_doc_summary'] ) )
+		$summary = isset( $_POST['_aadi_doc_summary'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['_aadi_doc_summary'] ) )
 			: '';
 		// mb_substr to avoid splitting UTF-8 characters at the 500-char cap.
 		$summary = function_exists( 'mb_substr' )
 			? mb_substr( $summary, 0, 500, 'UTF-8' )
 			: substr( $summary, 0, 500 );
 
-		update_post_meta( $post_id, '_ptai_doc_summary', $summary );
+		update_post_meta( $post_id, '_aadi_doc_summary', $summary );
 	}
 
 	/**
-	 * Render the AI status admin notice on PaperTrail screens.
+	 * Render the AI status admin notice on Ask Adam Doc It screens.
 	 *
 	 * @return void
 	 */
 	public function render_ai_status_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( ! $screen || PTAI_CPT !== $screen->post_type ) {
+		if ( ! $screen || AADI_CPT !== $screen->post_type ) {
 			return;
 		}
 
-		$settings     = new PTAI_Settings();
-		$settings_url = admin_url( 'edit.php?post_type=' . PTAI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
+		// Bulk regenerate summary takes precedence on the list table.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['aadi_bulk_regen'] ) && 'done' === $_GET['aadi_bulk_regen'] ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$processed = isset( $_GET['aadi_regen_processed'] ) ? absint( wp_unslash( $_GET['aadi_regen_processed'] ) ) : 0;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$skipped   = isset( $_GET['aadi_regen_skipped'] ) ? absint( wp_unslash( $_GET['aadi_regen_skipped'] ) ) : 0;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$failed    = isset( $_GET['aadi_regen_failed'] ) ? absint( wp_unslash( $_GET['aadi_regen_failed'] ) ) : 0;
+
+			$message = sprintf(
+				/* translators: 1: regenerated count, 2: skipped count */
+				__( 'Regenerated %1$d embeddings. Skipped %2$d (already current).', 'ask-adam-doc-it' ),
+				$processed,
+				$skipped
+			);
+			if ( $failed > 0 ) {
+				$message .= ' ' . sprintf(
+					/* translators: %d: failed count */
+					__( '%d failed — check your OpenAI API key.', 'ask-adam-doc-it' ),
+					$failed
+				);
+			}
+
+			$class = $failed > 0 ? 'notice-warning' : 'notice-success';
+			printf(
+				'<div class="notice %1$s is-dismissible"><p>%2$s</p></div>',
+				esc_attr( $class ),
+				esc_html( $message )
+			);
+		}
+
+		$settings     = new AADI_Settings();
+		$settings_url = admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
 
 		// Regeneration result feedback (must precede other notices).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$regen      = isset( $_GET['ptai_regen'] ) ? sanitize_key( wp_unslash( $_GET['ptai_regen'] ) ) : '';
+		$regen      = isset( $_GET['aadi_regen'] ) ? sanitize_key( wp_unslash( $_GET['aadi_regen'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$regen_post = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
 
 		if ( 'success' === $regen && $regen_post > 0 ) {
 			echo '<div class="notice notice-success is-dismissible"><p>'
-				. esc_html__( 'Embedding regenerated successfully.', 'papertrail-ai' )
+				. esc_html__( 'Embedding regenerated successfully.', 'ask-adam-doc-it' )
 				. '</p></div>';
 		} elseif ( 'failed' === $regen && $regen_post > 0 ) {
 			printf(
@@ -1085,7 +1117,7 @@ class PTAI_Admin {
 						/* translators: %s: settings page URL */
 						__(
 							'Embedding regeneration failed. <a href="%s">Check your OpenAI API key in Settings</a>.',
-							'papertrail-ai'
+							'ask-adam-doc-it'
 						),
 						esc_url( $settings_url )
 					),
@@ -1095,7 +1127,7 @@ class PTAI_Admin {
 		}
 
 		// State 1 — circuit breaker.
-		if ( get_option( 'ptai_openai_auth_failed' ) ) {
+		if ( get_option( 'aadi_openai_auth_failed' ) ) {
 			?>
 			<div class="notice notice-error">
 				<p>
@@ -1104,8 +1136,8 @@ class PTAI_Admin {
 						wp_kses(
 							/* translators: %s: settings page URL */
 							__(
-								'PaperTrail AI: Your OpenAI API key was rejected (401). AI search is disabled. <a href="%s">Update your API key</a> to re-enable.',
-								'papertrail-ai'
+								'Ask Adam Doc It: Your OpenAI API key was rejected (401). AI search is disabled. <a href="%s">Update your API key</a> to re-enable.',
+								'ask-adam-doc-it'
 							),
 							array( 'a' => array( 'href' => array() ) )
 						),
@@ -1128,8 +1160,8 @@ class PTAI_Admin {
 						wp_kses(
 							/* translators: %s: settings page URL */
 							__(
-								'PaperTrail AI is running in basic search mode. <a href="%s">Add your OpenAI API key</a> to enable AI-powered semantic search.',
-								'papertrail-ai'
+								'Ask Adam Doc It is running in basic search mode. <a href="%s">Add your OpenAI API key</a> to enable AI-powered semantic search.',
+								'ask-adam-doc-it'
 							),
 							array( 'a' => array( 'href' => array() ) )
 						),
@@ -1143,14 +1175,14 @@ class PTAI_Admin {
 		}
 
 		// State 3 — AI active.
-		$dismissed_key = 'ptai_ai_notice_dismissed_' . get_current_user_id();
+		$dismissed_key = 'aadi_ai_notice_dismissed_' . get_current_user_id();
 		if ( get_user_meta( get_current_user_id(), $dismissed_key, true ) ) {
 			return;
 		}
 		?>
-		<div class="notice notice-success is-dismissible ptai-ai-active-notice"
-			data-nonce="<?php echo esc_attr( wp_create_nonce( 'ptai_dismiss_notice' ) ); ?>">
-			<p><?php esc_html_e( 'PaperTrail AI: AI search is active.', 'papertrail-ai' ); ?></p>
+		<div class="notice notice-success is-dismissible aadi-ai-active-notice"
+			data-nonce="<?php echo esc_attr( wp_create_nonce( 'aadi_dismiss_notice' ) ); ?>">
+			<p><?php esc_html_e( 'Ask Adam Doc It: AI search is active.', 'ask-adam-doc-it' ); ?></p>
 		</div>
 		<?php
 	}
@@ -1161,13 +1193,13 @@ class PTAI_Admin {
 	 * @return void
 	 */
 	public function handle_dismiss_ai_notice() {
-		check_ajax_referer( 'ptai_dismiss_notice', 'nonce' );
+		check_ajax_referer( 'aadi_dismiss_notice', 'nonce' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$key = 'ptai_ai_notice_dismissed_' . get_current_user_id();
+		$key = 'aadi_ai_notice_dismissed_' . get_current_user_id();
 		update_user_meta( get_current_user_id(), $key, true );
 
 		wp_send_json_success();
@@ -1182,24 +1214,24 @@ class PTAI_Admin {
 	 * @return array
 	 */
 	public function add_row_actions( $actions, $post ) {
-		if ( PTAI_CPT !== $post->post_type ) {
+		if ( AADI_CPT !== $post->post_type ) {
 			return $actions;
 		}
 
-		$embeddings = new PTAI_Embeddings();
+		$embeddings = new AADI_Embeddings();
 		$status     = $embeddings->get_embedding_status( $post->ID );
-		$settings   = new PTAI_Settings();
+		$settings   = new AADI_Settings();
 
 		$badge_labels = array(
-			'current' => __( 'Embedding current', 'papertrail-ai' ),
-			'stale'   => __( 'Embedding stale', 'papertrail-ai' ),
-			'missing' => __( 'No embedding', 'papertrail-ai' ),
+			'current' => __( 'Embedding current', 'ask-adam-doc-it' ),
+			'stale'   => __( 'Embedding stale', 'ask-adam-doc-it' ),
+			'missing' => __( 'No embedding', 'ask-adam-doc-it' ),
 		);
 
 		if ( 'disabled' !== $status ) {
 			$label                  = isset( $badge_labels[ $status ] ) ? $badge_labels[ $status ] : '';
-			$actions['ptai_status'] = sprintf(
-				'<span class="ptai-status-badge ptai-status-badge--%s">%s</span>',
+			$actions['aadi_status'] = sprintf(
+				'<span class="aadi-status-badge aadi-status-badge--%s">%s</span>',
 				esc_attr( $status ),
 				esc_html( $label )
 			);
@@ -1212,14 +1244,14 @@ class PTAI_Admin {
 		) {
 			$regen_url = wp_nonce_url(
 				admin_url(
-					'admin-post.php?action=ptai_regenerate_embedding&post_id=' . absint( $post->ID )
+					'admin-post.php?action=aadi_regenerate_embedding&post_id=' . absint( $post->ID )
 				),
-				'ptai_regenerate_' . $post->ID
+				'aadi_regenerate_' . $post->ID
 			);
-			$actions['ptai_regenerate'] = sprintf(
+			$actions['aadi_regenerate'] = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( $regen_url ),
-				esc_html__( 'Regenerate Embedding', 'papertrail-ai' )
+				esc_html__( 'Regenerate Embedding', 'ask-adam-doc-it' )
 			);
 		}
 
@@ -1235,27 +1267,27 @@ class PTAI_Admin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
 		if ( $post_id < 1 ) {
-			wp_die( esc_html__( 'Invalid post.', 'papertrail-ai' ) );
+			wp_die( esc_html__( 'Invalid post.', 'ask-adam-doc-it' ) );
 		}
 
-		check_admin_referer( 'ptai_regenerate_' . $post_id );
+		check_admin_referer( 'aadi_regenerate_' . $post_id );
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'papertrail-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'ask-adam-doc-it' ) );
 		}
 
 		$post = get_post( $post_id );
-		if ( ! $post || PTAI_CPT !== $post->post_type ) {
-			wp_die( esc_html__( 'Invalid post.', 'papertrail-ai' ) );
+		if ( ! $post || AADI_CPT !== $post->post_type ) {
+			wp_die( esc_html__( 'Invalid post.', 'ask-adam-doc-it' ) );
 		}
 
-		$embeddings = new PTAI_Embeddings();
+		$embeddings = new AADI_Embeddings();
 		$result     = $embeddings->generate_embedding( $post_id );
 
 		$redirect = add_query_arg(
 			array(
-				'post_type'  => PTAI_CPT,
-				'ptai_regen' => $result ? 'success' : 'failed',
+				'post_type'  => AADI_CPT,
+				'aadi_regen' => $result ? 'success' : 'failed',
 				'post_id'    => $post_id,
 			),
 			admin_url( 'edit.php' )
@@ -1272,8 +1304,8 @@ class PTAI_Admin {
 	 * @return array
 	 */
 	public function add_bulk_actions( $actions ) {
-		$actions['ptai_regen_missing'] = __( 'Regenerate missing/stale embeddings', 'papertrail-ai' );
-		$actions['ptai_regen_all']     = __( 'Force regenerate ALL embeddings', 'papertrail-ai' );
+		$actions['aadi_regen_missing'] = __( 'Regenerate missing/stale embeddings', 'ask-adam-doc-it' );
+		$actions['aadi_regen_all']     = __( 'Force regenerate ALL embeddings', 'ask-adam-doc-it' );
 		return $actions;
 	}
 
@@ -1289,14 +1321,14 @@ class PTAI_Admin {
 	 * @return string
 	 */
 	public function handle_bulk_action( $redirect_url, $action, $post_ids ) {
-		if ( ! in_array( $action, array( 'ptai_regen_missing', 'ptai_regen_all' ), true ) ) {
+		if ( ! in_array( $action, array( 'aadi_regen_missing', 'aadi_regen_all' ), true ) ) {
 			return $redirect_url;
 		}
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return $redirect_url;
 		}
 
-		$embeddings = new PTAI_Embeddings();
+		$embeddings = new AADI_Embeddings();
 		$processed  = 0;
 		$skipped    = 0;
 		$failed     = 0;
@@ -1306,11 +1338,11 @@ class PTAI_Admin {
 			if ( $post_id < 1 ) {
 				continue;
 			}
-			if ( PTAI_CPT !== get_post_type( $post_id ) ) {
+			if ( AADI_CPT !== get_post_type( $post_id ) ) {
 				continue;
 			}
 
-			if ( 'ptai_regen_missing' === $action ) {
+			if ( 'aadi_regen_missing' === $action ) {
 				$status = $embeddings->get_embedding_status( $post_id );
 				if ( 'current' === $status ) {
 					$skipped++;
@@ -1328,70 +1360,13 @@ class PTAI_Admin {
 
 		return add_query_arg(
 			array(
-				'ptai_bulk_regen'      => 'done',
-				'ptai_regen_processed' => $processed,
-				'ptai_regen_skipped'   => $skipped,
-				'ptai_regen_failed'    => $failed,
+				'aadi_bulk_regen'      => 'done',
+				'aadi_regen_processed' => $processed,
+				'aadi_regen_skipped'   => $skipped,
+				'aadi_regen_failed'    => $failed,
 			),
 			$redirect_url
 		);
 	}
 
-	/**
-	 * Render notice if the library exceeds the in-PHP scoring limit.
-	 *
-	 * @return void
-	 */
-	public function render_size_limit_notice() {
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( ! $screen || PTAI_CPT !== $screen->post_type ) {
-			return;
-		}
-
-		// Bulk regenerate summary takes precedence on the list table.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['ptai_bulk_regen'] ) && 'done' === $_GET['ptai_bulk_regen'] ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$processed = isset( $_GET['ptai_regen_processed'] ) ? absint( wp_unslash( $_GET['ptai_regen_processed'] ) ) : 0;
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$skipped   = isset( $_GET['ptai_regen_skipped'] ) ? absint( wp_unslash( $_GET['ptai_regen_skipped'] ) ) : 0;
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$failed    = isset( $_GET['ptai_regen_failed'] ) ? absint( wp_unslash( $_GET['ptai_regen_failed'] ) ) : 0;
-
-			$message = sprintf(
-				/* translators: 1: regenerated count, 2: skipped count */
-				__( 'Regenerated %1$d embeddings. Skipped %2$d (already current).', 'papertrail-ai' ),
-				$processed,
-				$skipped
-			);
-			if ( $failed > 0 ) {
-				$message .= ' ' . sprintf(
-					/* translators: %d: failed count */
-					__( '%d failed — check your OpenAI API key.', 'papertrail-ai' ),
-					$failed
-				);
-			}
-
-			$class = $failed > 0 ? 'notice-warning' : 'notice-success';
-			printf(
-				'<div class="notice %1$s is-dismissible"><p>%2$s</p></div>',
-				esc_attr( $class ),
-				esc_html( $message )
-			);
-		}
-
-		if ( class_exists( 'PTAI_Search' ) && PTAI_Search::is_over_limit() ) {
-			printf(
-				'<div class="notice notice-warning"><p>%s</p></div>',
-				esc_html(
-					sprintf(
-						/* translators: 1: document count threshold, 2: number of documents scored per AI search. */
-						__( 'PaperTrail AI: Your library exceeds %1$d documents. The free version scores only the most recent %2$d during AI search. Upgrade to Pro for full-library vector search.', 'papertrail-ai' ),
-						PTAI_Search::MAX_SCORED_POSTS,
-						PTAI_Search::MAX_SCORED_POSTS
-					)
-				)
-			);
-		}
-	}
 }

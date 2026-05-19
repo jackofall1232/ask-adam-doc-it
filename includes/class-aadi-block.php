@@ -2,46 +2,46 @@
 /**
  * Gutenberg block registration.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Block
+ * Class AADI_Block
  *
- * Registers the PaperTrail AI dynamic Gutenberg block. The block is
- * defined by blocks/papertrail-library/block.json so attribute schema
+ * Registers the Ask Adam Doc It dynamic Gutenberg block. The block is
+ * defined by blocks/ask-adam-library/block.json so attribute schema
  * and editor script registration follow WordPress's preferred path.
- * Rendering is server-side via PTAI_Shortcode so no compiled JS build
+ * Rendering is server-side via AADI_Shortcode so no compiled JS build
  * step is required to ship a working block.
  */
-class PTAI_Block {
+class AADI_Block {
 
 	/**
 	 * Block name. Mirrors block.json's "name" field.
 	 *
 	 * @var string
 	 */
-	const BLOCK_NAME = 'papertrail-ai/library';
+	const BLOCK_NAME = 'ask-adam-doc-it/library';
 
 	/**
 	 * Shortcode renderer used to produce the dynamic block output.
 	 *
-	 * @var PTAI_Shortcode
+	 * @var AADI_Shortcode
 	 */
 	private $shortcode;
 
 	/**
 	 * Constructor. Intentionally side-effect-free — registration is hooked
-	 * in PTAI_Loader::define_core_hooks(). The shortcode dependency is
+	 * in AADI_Loader::define_core_hooks(). The shortcode dependency is
 	 * injected so render_callback() doesn't allocate a new instance per
 	 * block render.
 	 *
-	 * @param PTAI_Shortcode|null $shortcode Optional shortcode renderer.
+	 * @param AADI_Shortcode|null $shortcode Optional shortcode renderer.
 	 */
 	public function __construct( $shortcode = null ) {
-		if ( $shortcode instanceof PTAI_Shortcode ) {
+		if ( $shortcode instanceof AADI_Shortcode ) {
 			$this->shortcode = $shortcode;
 		}
 	}
@@ -57,7 +57,7 @@ class PTAI_Block {
 		}
 
 		register_block_type(
-			PTAI_PLUGIN_DIR . 'blocks/papertrail-library',
+			AADI_PLUGIN_DIR . 'blocks/ask-adam-library',
 			array(
 				'render_callback' => array( $this, 'render_callback' ),
 			)
@@ -66,7 +66,7 @@ class PTAI_Block {
 
 	/**
 	 * Dynamic render callback — maps block attributes to shortcode atts
-	 * and delegates to PTAI_Shortcode for a single rendering path.
+	 * and delegates to AADI_Shortcode for a single rendering path.
 	 *
 	 * @param array  $attributes Block attributes.
 	 * @param string $content    Inner content (unused).
@@ -75,7 +75,7 @@ class PTAI_Block {
 	public function render_callback( $attributes, $content = '' ) {
 		unset( $content );
 
-		if ( ! class_exists( 'PTAI_Shortcode' ) ) {
+		if ( ! class_exists( 'AADI_Shortcode' ) ) {
 			return '';
 		}
 
@@ -99,7 +99,7 @@ class PTAI_Block {
 				: 'auto',
 		);
 
-		$shortcode = isset( $this->shortcode ) ? $this->shortcode : new PTAI_Shortcode();
+		$shortcode = isset( $this->shortcode ) ? $this->shortcode : new AADI_Shortcode();
 		return $shortcode->render( $atts, '' );
 	}
 }
