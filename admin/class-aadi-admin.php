@@ -1064,6 +1064,38 @@ class AADI_Admin {
 			return;
 		}
 
+		// Bulk regenerate summary takes precedence on the list table.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['aadi_bulk_regen'] ) && 'done' === $_GET['aadi_bulk_regen'] ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$processed = isset( $_GET['aadi_regen_processed'] ) ? absint( wp_unslash( $_GET['aadi_regen_processed'] ) ) : 0;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$skipped   = isset( $_GET['aadi_regen_skipped'] ) ? absint( wp_unslash( $_GET['aadi_regen_skipped'] ) ) : 0;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$failed    = isset( $_GET['aadi_regen_failed'] ) ? absint( wp_unslash( $_GET['aadi_regen_failed'] ) ) : 0;
+
+			$message = sprintf(
+				/* translators: 1: regenerated count, 2: skipped count */
+				__( 'Regenerated %1$d embeddings. Skipped %2$d (already current).', 'ask-adam-doc-it' ),
+				$processed,
+				$skipped
+			);
+			if ( $failed > 0 ) {
+				$message .= ' ' . sprintf(
+					/* translators: %d: failed count */
+					__( '%d failed — check your OpenAI API key.', 'ask-adam-doc-it' ),
+					$failed
+				);
+			}
+
+			$class = $failed > 0 ? 'notice-warning' : 'notice-success';
+			printf(
+				'<div class="notice %1$s is-dismissible"><p>%2$s</p></div>',
+				esc_attr( $class ),
+				esc_html( $message )
+			);
+		}
+
 		$settings     = new AADI_Settings();
 		$settings_url = admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
 
