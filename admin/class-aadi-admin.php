@@ -45,7 +45,7 @@ class AADI_Admin {
 	}
 
 	/**
-	 * Determine whether the current screen is a Ask Adam Doc It screen.
+	 * Determine whether the current screen is an Ask Adam Doc It screen.
 	 *
 	 * @param string $hook Current admin page hook.
 	 * @return bool

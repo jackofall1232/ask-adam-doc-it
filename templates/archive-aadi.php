@@ -111,7 +111,7 @@ $aadi_columns = isset( $aadi_columns ) ? (int) $aadi_columns : 1;
 			'category_id' => (int) $aadi_archive_category,
 			'mode'        => (string) $aadi_archive_mode,
 		);
-		include AADI_PLUGIN_DIR . 'templates/partials/search-bar.php';
+		include locate_template( 'ask-adam-doc-it/partials/search-bar.php' ) ?: AADI_PLUGIN_DIR . 'templates/partials/search-bar.php';
 		?>
 	<?php endif; ?>
 
@@ -141,7 +141,7 @@ $aadi_columns = isset( $aadi_columns ) ? (int) $aadi_columns : 1;
 				if ( ! ( $post instanceof WP_Post ) ) {
 					continue;
 				}
-				include AADI_PLUGIN_DIR . 'templates/partials/file-card.php';
+				include locate_template( 'ask-adam-doc-it/partials/file-card.php' ) ?: AADI_PLUGIN_DIR . 'templates/partials/file-card.php';
 			endforeach;
 
 			$GLOBALS['post'] = $aadi_saved_post;

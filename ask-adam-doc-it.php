@@ -248,7 +248,7 @@ function aadi_handle_download( WP_REST_Request $request ) {
 	}
 
 	if ( AADI_CPT !== $post->post_type ) {
-		return new WP_Error( 'aadi_invalid_type', __( 'Requested item is not a Ask Adam Doc It document.', 'ask-adam-doc-it' ), array( 'status' => 400 ) );
+		return new WP_Error( 'aadi_invalid_type', __( 'Requested item is not an Ask Adam Doc It document.', 'ask-adam-doc-it' ), array( 'status' => 400 ) );
 	}
 
 	if ( 'publish' !== $post->post_status ) {

@@ -74,7 +74,7 @@ Ask Adam Doc It is a self-contained WordPress document library that you host and
 
 = What file types are supported? =
 
-Any file type your WordPress media library accepts can be attached to a Ask Adam Doc It file entry, including PDFs, Word documents (.doc/.docx), spreadsheets (.xls/.xlsx/.csv), presentations (.ppt/.pptx), images (.jpg/.png/.gif/.webp), and plain text files. You can extend supported MIME types using the standard `upload_mimes` WordPress filter. SVG is intentionally excluded — it is a stored XSS vector. SVG support requires dedicated sanitization — available in Pro.
+Any file type your WordPress media library accepts can be attached to an Ask Adam Doc It file entry, including PDFs, Word documents (.doc/.docx), spreadsheets (.xls/.xlsx/.csv), presentations (.ppt/.pptx), images (.jpg/.png/.gif/.webp), and plain text files. You can extend supported MIME types using the standard `upload_mimes` WordPress filter. SVG is intentionally excluded — it is a stored XSS vector. SVG support requires dedicated sanitization — available in Pro.
 
 = Is Ask Adam Doc It available in my language? =
 

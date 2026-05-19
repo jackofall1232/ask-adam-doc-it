@@ -1,6 +1,6 @@
 <?php
 /**
- * Single template for a Ask Adam Doc It document.
+ * Single template for an Ask Adam Doc It document.
  *
  * Themes may override this by placing `ask-adam-doc-it/single-aadi.php`
  * in the active stylesheet.
