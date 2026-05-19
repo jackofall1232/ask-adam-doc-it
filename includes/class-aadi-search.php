@@ -2,13 +2,13 @@
 /**
  * Search engine for the document library.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Search
+ * Class AADI_Search
  *
  * Provides both classic keyword search and AI-powered semantic search.
  *
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * outbound OpenAI call from the search path is the one used to embed
  * the search query itself — never per-document.
  */
-class PTAI_Search {
+class AADI_Search {
 
 	/**
 	 * Hard limit for in-PHP cosine scoring.
@@ -30,7 +30,7 @@ class PTAI_Search {
 	/**
 	 * Transient key for the published-post count.
 	 */
-	const COUNT_CACHE_TRANSIENT = 'ptai_post_count_cache';
+	const COUNT_CACHE_TRANSIENT = 'aadi_post_count_cache';
 
 	/**
 	 * Constructor.
@@ -109,7 +109,7 @@ class PTAI_Search {
 	 */
 	private function core_search( $query, $args ) {
 		$wp_args = array(
-			'post_type'      => PTAI_CPT,
+			'post_type'      => AADI_CPT,
 			'post_status'    => 'publish',
 			'posts_per_page' => (int) $args['per_page'],
 			'paged'          => (int) $args['page'],
@@ -122,7 +122,7 @@ class PTAI_Search {
 
 		$orderby = isset( $args['orderby'] ) ? (string) $args['orderby'] : 'date';
 		if ( 'downloads' === $orderby ) {
-			$wp_args['meta_key'] = '_ptai_download_count'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$wp_args['meta_key'] = '_aadi_download_count'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			$wp_args['orderby']  = 'meta_value_num';
 		} elseif ( 'title' === $orderby ) {
 			$wp_args['orderby'] = 'title';
@@ -133,7 +133,7 @@ class PTAI_Search {
 		if ( $args['category'] > 0 ) {
 			$wp_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
-					'taxonomy' => PTAI_TAXONOMY,
+					'taxonomy' => AADI_TAXONOMY,
 					'field'    => 'term_id',
 					'terms'    => (int) $args['category'],
 				),
@@ -165,21 +165,21 @@ class PTAI_Search {
 			return $this->core_search( $query, $args );
 		}
 
-		$key       = (string) PTAI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new PTAI_OpenAI( $key );
+		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
+		$openai    = new AADI_OpenAI( $key );
 		$query_vec = $openai->get_embedding( sanitize_text_field( $query ) );
 
 		if ( false === $query_vec ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions
-					'PaperTrail AI: query embedding failed, falling back to core search.'
+					'Ask Adam Doc It: query embedding failed, falling back to core search.'
 				);
 			}
 			return $this->core_search( $query, $args );
 		}
 
 		$candidate_args = array(
-			'post_type'      => PTAI_CPT,
+			'post_type'      => AADI_CPT,
 			'post_status'    => 'publish',
 			'posts_per_page' => self::MAX_SCORED_POSTS,
 			'orderby'        => 'date',
@@ -191,7 +191,7 @@ class PTAI_Search {
 		if ( $args['category'] > 0 ) {
 			$candidate_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
-					'taxonomy' => PTAI_TAXONOMY,
+					'taxonomy' => AADI_TAXONOMY,
 					'field'    => 'term_id',
 					'terms'    => (int) $args['category'],
 				),
@@ -206,11 +206,11 @@ class PTAI_Search {
 		}
 
 		// Prime the postmeta cache for the whole candidate pool so each
-		// PTAI_Embeddings::get_embedding() call hits the cache instead of
+		// AADI_Embeddings::get_embedding() call hits the cache instead of
 		// issuing its own SELECT — turns N queries into 1.
 		update_meta_cache( 'post', $post_ids );
 
-		$embeddings = new PTAI_Embeddings();
+		$embeddings = new AADI_Embeddings();
 		$scored     = array();
 
 		foreach ( $post_ids as $post_id ) {
@@ -256,7 +256,7 @@ class PTAI_Search {
 		if ( ! empty( $ordered_ids ) ) {
 			$posts = get_posts(
 				array(
-					'post_type'      => PTAI_CPT,
+					'post_type'      => AADI_CPT,
 					'post_status'    => 'publish',
 					'posts_per_page' => count( $ordered_ids ),
 					'post__in'       => $ordered_ids,
@@ -364,12 +364,12 @@ class PTAI_Search {
 	}
 
 	/**
-	 * Convenience wrapper for PTAI_Settings::is_ai_enabled().
+	 * Convenience wrapper for AADI_Settings::is_ai_enabled().
 	 *
 	 * @return bool
 	 */
 	private function is_ai_enabled() {
-		return PTAI_Settings::is_ai_enabled();
+		return AADI_Settings::is_ai_enabled();
 	}
 
 	/**
@@ -383,7 +383,7 @@ class PTAI_Search {
 			return (int) $cached > self::MAX_SCORED_POSTS;
 		}
 
-		$counts = wp_count_posts( PTAI_CPT );
+		$counts = wp_count_posts( AADI_CPT );
 		$count  = isset( $counts->publish ) ? (int) $counts->publish : 0;
 		set_transient( self::COUNT_CACHE_TRANSIENT, $count, HOUR_IN_SECONDS );
 

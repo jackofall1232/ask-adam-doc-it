@@ -2,17 +2,17 @@
 /**
  * Public/frontend controller.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Public
+ * Class AADI_Public
  *
  * Handles public-facing scripts/styles, template loading, and AJAX search.
  */
-class PTAI_Public {
+class AADI_Public {
 
 	/**
 	 * Site-wide AI search rate limit per hour. Free version cap.
@@ -22,7 +22,7 @@ class PTAI_Public {
 
 	/**
 	 * Constructor. Intentionally side-effect-free — all hooks live in
-	 * PTAI_Loader::define_public_hooks() and define_ajax_hooks().
+	 * AADI_Loader::define_public_hooks() and define_ajax_hooks().
 	 */
 	public function __construct() {}
 
@@ -32,13 +32,13 @@ class PTAI_Public {
 	 * @return bool
 	 */
 	private function should_enqueue_assets() {
-		if ( is_singular( PTAI_CPT ) ) {
+		if ( is_singular( AADI_CPT ) ) {
 			return true;
 		}
-		if ( is_post_type_archive( PTAI_CPT ) ) {
+		if ( is_post_type_archive( AADI_CPT ) ) {
 			return true;
 		}
-		if ( is_tax( PTAI_TAXONOMY ) ) {
+		if ( is_tax( AADI_TAXONOMY ) ) {
 			return true;
 		}
 
@@ -46,10 +46,10 @@ class PTAI_Public {
 			$post = get_post();
 			if ( $post ) {
 				$content = (string) $post->post_content;
-				if ( has_shortcode( $content, PTAI_Shortcode::TAG ) ) {
+				if ( has_shortcode( $content, AADI_Shortcode::TAG ) ) {
 					return true;
 				}
-				if ( function_exists( 'has_block' ) && has_block( PTAI_Block::BLOCK_NAME, $post ) ) {
+				if ( function_exists( 'has_block' ) && has_block( AADI_Block::BLOCK_NAME, $post ) ) {
 					return true;
 				}
 			}
@@ -70,16 +70,16 @@ class PTAI_Public {
 	 */
 	public function enqueue_styles() {
 		wp_register_style(
-			'papertrail-ai-public',
-			PTAI_PLUGIN_URL . 'public/css/public.css',
+			'ask-adam-doc-it-public',
+			AADI_PLUGIN_URL . 'public/css/public.css',
 			array(),
-			PTAI_VERSION
+			AADI_VERSION
 		);
 
 		if ( ! $this->should_enqueue_assets() ) {
 			return;
 		}
-		wp_enqueue_style( 'papertrail-ai-public' );
+		wp_enqueue_style( 'ask-adam-doc-it-public' );
 	}
 
 	/**
@@ -87,31 +87,31 @@ class PTAI_Public {
 	 *
 	 * Registers the script handle unconditionally so block.json's
 	 * `viewScript` reference resolves on block-only pages. The localized
-	 * `ptaiPublic` object is attached at registration time so it ships
+	 * `aadiPublic` object is attached at registration time so it ships
 	 * with the handle regardless of which path enqueues it.
 	 *
 	 * @return void
 	 */
 	public function enqueue_scripts() {
 		wp_register_script(
-			'papertrail-ai-public',
-			PTAI_PLUGIN_URL . 'public/js/public.js',
+			'ask-adam-doc-it-public',
+			AADI_PLUGIN_URL . 'public/js/public.js',
 			array( 'jquery' ),
-			PTAI_VERSION,
+			AADI_VERSION,
 			true
 		);
 		wp_localize_script(
-			'papertrail-ai-public',
-			'ptaiPublic',
+			'ask-adam-doc-it-public',
+			'aadiPublic',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'ptai_public_search' ),
+				'nonce'    => wp_create_nonce( 'aadi_public_search' ),
 				'strings'  => array(
-					'searching'  => __( 'Searching...', 'papertrail-ai' ),
-					'no_results' => __( 'No documents found.', 'papertrail-ai' ),
-					'error'      => __( 'Search error. Please try again.', 'papertrail-ai' ),
-					'search'     => __( 'Search', 'papertrail-ai' ),
-					'download'   => __( 'Download', 'papertrail-ai' ),
+					'searching'  => __( 'Searching...', 'ask-adam-doc-it' ),
+					'no_results' => __( 'No documents found.', 'ask-adam-doc-it' ),
+					'error'      => __( 'Search error. Please try again.', 'ask-adam-doc-it' ),
+					'search'     => __( 'Search', 'ask-adam-doc-it' ),
+					'download'   => __( 'Download', 'ask-adam-doc-it' ),
 				),
 			)
 		);
@@ -119,7 +119,7 @@ class PTAI_Public {
 		if ( ! $this->should_enqueue_assets() ) {
 			return;
 		}
-		wp_enqueue_script( 'papertrail-ai-public' );
+		wp_enqueue_script( 'ask-adam-doc-it-public' );
 	}
 
 	/**
@@ -130,24 +130,24 @@ class PTAI_Public {
 	 */
 	public function template_include( $template ) {
 		// Single document.
-		if ( is_singular( PTAI_CPT ) ) {
-			$theme = get_stylesheet_directory() . '/papertrail-ai/single-ptai.php';
+		if ( is_singular( AADI_CPT ) ) {
+			$theme = get_stylesheet_directory() . '/ask-adam-doc-it/single-aadi.php';
 			if ( file_exists( $theme ) ) {
 				return $theme;
 			}
-			$plugin = PTAI_PLUGIN_DIR . 'templates/single-ptai.php';
+			$plugin = AADI_PLUGIN_DIR . 'templates/single-aadi.php';
 			if ( file_exists( $plugin ) ) {
 				return $plugin;
 			}
 		}
 
 		// Archive / taxonomy archive.
-		if ( is_post_type_archive( PTAI_CPT ) || is_tax( PTAI_TAXONOMY ) ) {
-			$theme = get_stylesheet_directory() . '/papertrail-ai/archive-ptai.php';
+		if ( is_post_type_archive( AADI_CPT ) || is_tax( AADI_TAXONOMY ) ) {
+			$theme = get_stylesheet_directory() . '/ask-adam-doc-it/archive-aadi.php';
 			if ( file_exists( $theme ) ) {
 				return $theme;
 			}
-			$plugin = PTAI_PLUGIN_DIR . 'templates/archive-ptai.php';
+			$plugin = AADI_PLUGIN_DIR . 'templates/archive-aadi.php';
 			if ( file_exists( $plugin ) ) {
 				return $plugin;
 			}
@@ -165,7 +165,7 @@ class PTAI_Public {
 	 *
 	 * Only requests that will actually invoke OpenAI consume the bucket:
 	 * empty queries and sites without an API key both degrade to core in
-	 * PTAI_Search::ai_search(), so charging them here would needlessly
+	 * AADI_Search::ai_search(), so charging them here would needlessly
 	 * starve later real AI searches.
 	 *
 	 * @param string $mode  Requested mode.
@@ -179,7 +179,7 @@ class PTAI_Public {
 		}
 
 		// AI not configured — no OpenAI call will happen.
-		if ( ! PTAI_Settings::is_ai_enabled() ) {
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return $mode;
 		}
 
@@ -192,7 +192,7 @@ class PTAI_Public {
 		$window = gmdate( 'Y-m-d-H' );
 		$salt   = wp_salt( 'auth' );
 		$token  = hash( 'sha256', 'search' . $window . $salt );
-		$key    = 'ptai_srch_' . substr( $token, 0, 40 );
+		$key    = 'aadi_srch_' . substr( $token, 0, 40 );
 		$count  = (int) get_transient( $key );
 
 		if ( $count >= self::RATE_LIMIT_PER_HOUR ) {
@@ -224,21 +224,21 @@ class PTAI_Public {
 			}
 
 			$post_id   = (int) $post->ID;
-			$file_id   = absint( get_post_meta( $post_id, '_ptai_file_id', true ) );
-			$file_type = (string) get_post_meta( $post_id, '_ptai_file_type', true );
-			$file_ext  = (string) get_post_meta( $post_id, '_ptai_file_ext', true );
-			$file_size = absint( get_post_meta( $post_id, '_ptai_file_size', true ) );
-			$downloads = absint( get_post_meta( $post_id, '_ptai_download_count', true ) );
+			$file_id   = absint( get_post_meta( $post_id, '_aadi_file_id', true ) );
+			$file_type = (string) get_post_meta( $post_id, '_aadi_file_type', true );
+			$file_ext  = (string) get_post_meta( $post_id, '_aadi_file_ext', true );
+			$file_size = absint( get_post_meta( $post_id, '_aadi_file_size', true ) );
+			$downloads = absint( get_post_meta( $post_id, '_aadi_download_count', true ) );
 
-			$icon_class = 'ptai-icon-file';
+			$icon_class = 'aadi-icon-file';
 			if ( 'application/pdf' === $file_type ) {
-				$icon_class = 'ptai-icon-pdf';
+				$icon_class = 'aadi-icon-pdf';
 			} elseif ( 0 === strpos( $file_type, 'image/' ) ) {
-				$icon_class = 'ptai-icon-image';
+				$icon_class = 'aadi-icon-image';
 			} elseif ( 0 === strpos( $file_type, 'audio/' ) ) {
-				$icon_class = 'ptai-icon-audio';
+				$icon_class = 'aadi-icon-audio';
 			} elseif ( 0 === strpos( $file_type, 'video/' ) ) {
-				$icon_class = 'ptai-icon-video';
+				$icon_class = 'aadi-icon-video';
 			}
 
 			$meta_bits = array();
@@ -251,7 +251,7 @@ class PTAI_Public {
 			}
 			$meta_bits[] = sprintf(
 				/* translators: %s: localized download count. */
-				_n( '%s download', '%s downloads', $downloads, 'papertrail-ai' ),
+				_n( '%s download', '%s downloads', $downloads, 'ask-adam-doc-it' ),
 				number_format_i18n( $downloads )
 			);
 
@@ -267,7 +267,7 @@ class PTAI_Public {
 				'icon_class'   => $icon_class,
 				'has_file'     => $file_id > 0,
 				'download_url' => $file_id > 0
-					? get_rest_url( null, 'papertrail-ai/v1/download/' . $post_id )
+					? get_rest_url( null, 'ask-adam-doc-it/v1/download/' . $post_id )
 					: '',
 			);
 		}
@@ -280,7 +280,7 @@ class PTAI_Public {
 	 * @return void
 	 */
 	public function handle_search_ajax() {
-		check_ajax_referer( 'ptai_public_search', 'nonce' );
+		check_ajax_referer( 'aadi_public_search', 'nonce' );
 
 		$query    = isset( $_POST['query'] ) ? sanitize_text_field( wp_unslash( $_POST['query'] ) ) : '';
 		$category = isset( $_POST['category'] ) ? absint( wp_unslash( $_POST['category'] ) ) : 0;
@@ -294,7 +294,7 @@ class PTAI_Public {
 		// Apply rate limit only when AI would actually run.
 		$mode = self::apply_rate_limit( $mode, $query );
 
-		$search  = new PTAI_Search();
+		$search  = new AADI_Search();
 		$results = $search->search(
 			$query,
 			array(

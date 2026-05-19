@@ -1,31 +1,31 @@
 <?php
 /**
- * [papertrail] shortcode handler.
+ * [ask_adam_doc_it] shortcode handler.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Shortcode
+ * Class AADI_Shortcode
  *
- * Registers and renders the front-end [papertrail] shortcode for the
- * document library. The Pro-only [papertrail_ask] Q&A shortcode is
+ * Registers and renders the front-end [ask_adam_doc_it] shortcode for the
+ * document library. The Pro-only [ask_adam_doc_it_ask] Q&A shortcode is
  * intentionally NOT registered here.
  */
-class PTAI_Shortcode {
+class AADI_Shortcode {
 
 	/**
 	 * Shortcode tag.
 	 *
 	 * @var string
 	 */
-	const TAG = 'papertrail';
+	const TAG = 'ask_adam_doc_it';
 
 	/**
 	 * Constructor. Intentionally side-effect-free — the shortcode is
-	 * registered in PTAI_Loader::define_core_hooks().
+	 * registered in AADI_Loader::define_core_hooks().
 	 */
 	public function __construct() {}
 
@@ -83,7 +83,7 @@ class PTAI_Shortcode {
 			if ( is_numeric( $category ) ) {
 				$category_id = absint( $category );
 			} else {
-				$term = get_term_by( 'slug', $category, PTAI_TAXONOMY );
+				$term = get_term_by( 'slug', $category, AADI_TAXONOMY );
 				if ( $term && ! is_wp_error( $term ) ) {
 					$category_id = (int) $term->term_id;
 				}
@@ -94,11 +94,11 @@ class PTAI_Shortcode {
 
 		// Use the visitor's query string if a search was submitted.
 		$query_string = '';
-		if ( isset( $_GET['ptai_q'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$query_string = sanitize_text_field( wp_unslash( $_GET['ptai_q'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['aadi_q'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$query_string = sanitize_text_field( wp_unslash( $_GET['aadi_q'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
-		$search  = new PTAI_Search();
+		$search  = new AADI_Search();
 		$results = $search->search(
 			$query_string,
 			array(
@@ -164,19 +164,19 @@ class PTAI_Shortcode {
 	 * @return void
 	 */
 	private function render_archive( $results, $columns ) {
-		$template = PTAI_PLUGIN_DIR . 'templates/archive-ptai.php';
+		$template = AADI_PLUGIN_DIR . 'templates/archive-aadi.php';
 
 		// Theme override.
-		$theme_template = get_stylesheet_directory() . '/papertrail-ai/archive-ptai.php';
+		$theme_template = get_stylesheet_directory() . '/ask-adam-doc-it/archive-aadi.php';
 		if ( file_exists( $theme_template ) ) {
 			$template = $theme_template;
 		}
 
 		if ( file_exists( $template ) ) {
 			// Variables consumed by the template.
-			$ptai_results        = $results; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$ptai_columns        = (int) $columns; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$ptai_in_shortcode   = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$aadi_results        = $results; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$aadi_columns        = (int) $columns; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$aadi_in_shortcode   = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			include $template;
 		}
 	}
@@ -188,9 +188,9 @@ class PTAI_Shortcode {
 	 * @return string
 	 */
 	public function render_search_bar( $context = array() ) {
-		$template = PTAI_PLUGIN_DIR . 'templates/partials/search-bar.php';
+		$template = AADI_PLUGIN_DIR . 'templates/partials/search-bar.php';
 
-		$theme_template = get_stylesheet_directory() . '/papertrail-ai/partials/search-bar.php';
+		$theme_template = get_stylesheet_directory() . '/ask-adam-doc-it/partials/search-bar.php';
 		if ( file_exists( $theme_template ) ) {
 			$template = $theme_template;
 		}
@@ -199,7 +199,7 @@ class PTAI_Shortcode {
 			return '';
 		}
 
-		$ptai_search_context = is_array( $context ) ? $context : array(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$aadi_search_context = is_array( $context ) ? $context : array(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		ob_start();
 		include $template;

@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "papertrail-ai/library",
-	"title": "PaperTrail AI Library",
+	"name": "ask-adam-doc-it/library",
+	"title": "Ask Adam Doc It Library",
 	"description": "Display your document library with optional AI search.",
 	"category": "widgets",
 	"icon": "media-document",
@@ -10,7 +10,7 @@
 		"html": false,
 		"align": ["wide", "full"]
 	},
-	"textdomain": "papertrail-ai",
+	"textdomain": "ask-adam-doc-it",
 	"attributes": {
 		"category": {
 			"type": "string",
@@ -36,6 +36,6 @@
 		}
 	},
 	"editorScript": "file:./index.js",
-	"viewScript": "papertrail-ai-public",
-	"style": "papertrail-ai-public"
+	"viewScript": "ask-adam-doc-it-public",
+	"style": "ask-adam-doc-it-public"
 }

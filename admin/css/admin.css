@@ -1,5 +1,5 @@
 /* =============================================================
- * PaperTrail AI — Admin Styles
+ * Ask Adam Doc It — Admin Styles
  * Part of the Ask Adam Suite — askadamit.com
  * =============================================================
  *
@@ -24,38 +24,38 @@
 /* 1. CSS Custom Properties
 ------------------------------------------------------------- */
 /* Scoped to :root so meta-box and sidebar selectors that live on
-   CPT edit screens (outside .ptai-settings-wrap) can still resolve
+   CPT edit screens (outside .aadi-settings-wrap) can still resolve
    var() references. admin.css is only enqueued on plugin screens,
    so this does not leak tokens into unrelated admin pages. */
 :root {
-    --ptai-teal:        #0d9488;
-    --ptai-teal-dark:   #0f766e;
-    --ptai-teal-darker: #134e4a;
-    --ptai-teal-light:  #ccfbf1;
-    --ptai-teal-mid:    #99f6e4;
-    --ptai-white:       #ffffff;
-    --ptai-text-dark:   #1e293b;
-    --ptai-text-mid:    #64748b;
-    --ptai-border:      #e2e8f0;
-    --ptai-bg:          #f8fafc;
-    --ptai-radius:      8px;
-    --ptai-radius-sm:   4px;
-    --ptai-shadow:      0 1px 3px rgba(0,0,0,0.08),
+    --aadi-teal:        #0d9488;
+    --aadi-teal-dark:   #0f766e;
+    --aadi-teal-darker: #134e4a;
+    --aadi-teal-light:  #ccfbf1;
+    --aadi-teal-mid:    #99f6e4;
+    --aadi-white:       #ffffff;
+    --aadi-text-dark:   #1e293b;
+    --aadi-text-mid:    #64748b;
+    --aadi-border:      #e2e8f0;
+    --aadi-bg:          #f8fafc;
+    --aadi-radius:      8px;
+    --aadi-radius-sm:   4px;
+    --aadi-shadow:      0 1px 3px rgba(0,0,0,0.08),
                         0 1px 2px rgba(0,0,0,0.06);
-    --ptai-shadow-md:   0 4px 6px rgba(0,0,0,0.07),
+    --aadi-shadow-md:   0 4px 6px rgba(0,0,0,0.07),
                         0 2px 4px rgba(0,0,0,0.06);
 }
 
 /* 2. Hero / Branded Header
 ------------------------------------------------------------- */
-.ptai-admin-hero {
+.aadi-admin-hero {
     background: linear-gradient(
         135deg,
-        var(--ptai-teal)        0%,
-        var(--ptai-teal-dark)   50%,
-        var(--ptai-teal-darker) 100%
+        var(--aadi-teal)        0%,
+        var(--aadi-teal-dark)   50%,
+        var(--aadi-teal-darker) 100%
     );
-    border-radius: var(--ptai-radius);
+    border-radius: var(--aadi-radius);
     margin-bottom: 0;
     margin-top: 16px;
     overflow: hidden;
@@ -63,7 +63,7 @@
 }
 
 /* Subtle watermark pattern */
-.ptai-admin-hero::before {
+.aadi-admin-hero::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -75,7 +75,7 @@
     pointer-events: none;
 }
 
-.ptai-admin-hero__inner {
+.aadi-admin-hero__inner {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -84,7 +84,7 @@
     z-index: 1;
 }
 
-.ptai-admin-hero__icon {
+.aadi-admin-hero__icon {
     flex-shrink: 0;
     width: 48px;
     height: 48px;
@@ -95,21 +95,21 @@
     justify-content: center;
 }
 
-.ptai-admin-hero__icon .dashicons {
-    color: var(--ptai-white);
+.aadi-admin-hero__icon .dashicons {
+    color: var(--aadi-white);
     font-size: 26px;
     width: 26px;
     height: 26px;
     line-height: 1;
 }
 
-.ptai-admin-hero__text {
+.aadi-admin-hero__text {
     flex: 1;
     min-width: 0;
 }
 
-.ptai-admin-hero__title {
-    color: var(--ptai-white);
+.aadi-admin-hero__title {
+    color: var(--aadi-white);
     font-size: 22px;
     font-weight: 700;
     line-height: 1.2;
@@ -119,23 +119,23 @@
     border: none;
 }
 
-.ptai-admin-hero__subtitle {
+.aadi-admin-hero__subtitle {
     color: rgba(255,255,255,0.82);
     font-size: 13px;
     margin: 0;
     line-height: 1.4;
 }
 
-.ptai-admin-hero__badge {
+.aadi-admin-hero__badge {
     flex-shrink: 0;
 }
 
 /* 3. Version Badge
 ------------------------------------------------------------- */
-.ptai-version-badge {
+.aadi-version-badge {
     display: inline-block;
     background: rgba(255,255,255,0.18);
-    color: var(--ptai-white);
+    color: var(--aadi-white);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -149,32 +149,32 @@
 /* Hidden by default — JS reveals it after panels are wired up.
    Without JS (or if init bails), the nav stays hidden and the
    settings form renders flat. */
-.ptai-tab-nav {
+.aadi-tab-nav {
     display: none;
     gap: 2px;
-    background: var(--ptai-border);
-    border-radius: 0 0 var(--ptai-radius) var(--ptai-radius);
+    background: var(--aadi-border);
+    border-radius: 0 0 var(--aadi-radius) var(--aadi-radius);
     padding: 4px 4px 0;
     margin-bottom: 20px;
     overflow-x: auto;
     /* Flush against the hero bottom */
     margin-top: 0;
-    border: 1px solid var(--ptai-border);
+    border: 1px solid var(--aadi-border);
     border-top: none;
 }
 
-.ptai-tabs-ready .ptai-tab-nav {
+.aadi-tabs-ready .aadi-tab-nav {
     display: flex;
 }
 
-.ptai-tab-btn {
+.aadi-tab-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background: transparent;
     border: none;
-    border-radius: var(--ptai-radius-sm) var(--ptai-radius-sm) 0 0;
-    color: var(--ptai-text-mid);
+    border-radius: var(--aadi-radius-sm) var(--aadi-radius-sm) 0 0;
+    color: var(--aadi-text-mid);
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
@@ -185,7 +185,7 @@
     bottom: -1px;
 }
 
-.ptai-tab-btn .dashicons {
+.aadi-tab-btn .dashicons {
     font-size: 15px;
     width: 15px;
     height: 15px;
@@ -193,86 +193,86 @@
     flex-shrink: 0;
 }
 
-.ptai-tab-btn:hover {
-    color: var(--ptai-teal);
+.aadi-tab-btn:hover {
+    color: var(--aadi-teal);
     background: rgba(13,148,136,0.06);
 }
 
-.ptai-tab-btn--active,
-.ptai-tab-btn[aria-selected="true"] {
+.aadi-tab-btn--active,
+.aadi-tab-btn[aria-selected="true"] {
     background: #fff;
-    color: var(--ptai-teal);
+    color: var(--aadi-teal);
     font-weight: 600;
-    border: 1px solid var(--ptai-border);
+    border: 1px solid var(--aadi-border);
     border-bottom-color: #fff;
 }
 
 /* Active indicator bar */
-.ptai-tab-btn--active::after,
-.ptai-tab-btn[aria-selected="true"]::after {
+.aadi-tab-btn--active::after,
+.aadi-tab-btn[aria-selected="true"]::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--ptai-teal);
-    border-radius: var(--ptai-radius-sm) var(--ptai-radius-sm) 0 0;
+    background: var(--aadi-teal);
+    border-radius: var(--aadi-radius-sm) var(--aadi-radius-sm) 0 0;
 }
 
 /* 5. Tab Panels
 ------------------------------------------------------------- */
 /* Panels are server-rendered around the settings fields and the
-   help content. JS removes .ptai-no-js and adds .ptai-tabs-ready
+   help content. JS removes .aadi-no-js and adds .aadi-tabs-ready
    on load — until then the no-JS fallback rules below keep every
    panel visible and the tab nav hidden, so the page is usable
    without JavaScript. */
-.ptai-tabs-ready .ptai-tab-panel {
+.aadi-tabs-ready .aadi-tab-panel {
     display: none;
 }
 
-.ptai-tabs-ready .ptai-tab-panel--active {
+.aadi-tabs-ready .aadi-tab-panel--active {
     display: block;
 }
 
 /* No-JS fallback — show all panels, hide the nav.
-   JS removes ptai-no-js and adds ptai-tabs-ready on load. */
-.ptai-no-js .ptai-tab-nav   { display: none !important; }
-.ptai-no-js .ptai-tab-panel { display: block !important; }
+   JS removes aadi-no-js and adds aadi-tabs-ready on load. */
+.aadi-no-js .aadi-tab-nav   { display: none !important; }
+.aadi-no-js .aadi-tab-panel { display: block !important; }
 
 /* 6. Settings Layout
 ------------------------------------------------------------- */
-.ptai-settings-layout {
+.aadi-settings-layout {
     display: flex;
     gap: 24px;
     align-items: flex-start;
     flex-wrap: wrap;
 }
 
-.ptai-settings-layout .ptai-settings-main {
+.aadi-settings-layout .aadi-settings-main {
     flex: 1 1 540px;
     min-width: 300px;
 }
 
 /* Shared panel card — used by both settings tabs and the Help tab so
    every tab renders inside the same white card with a teal heading
-   bar. The help sections reuse the same base via .ptai-help__section. */
-.ptai-panel-card,
-.ptai-help__section {
-    background: var(--ptai-white);
-    border: 1px solid var(--ptai-border);
-    border-radius: var(--ptai-radius);
-    box-shadow: var(--ptai-shadow);
+   bar. The help sections reuse the same base via .aadi-help__section. */
+.aadi-panel-card,
+.aadi-help__section {
+    background: var(--aadi-white);
+    border: 1px solid var(--aadi-border);
+    border-radius: var(--aadi-radius);
+    box-shadow: var(--aadi-shadow);
     margin-bottom: 20px;
     overflow: hidden;
 }
 
-.ptai-panel-heading,
-.ptai-help__heading {
+.aadi-panel-heading,
+.aadi-help__heading {
     align-items: center;
-    background: var(--ptai-bg);
-    border-bottom: 1px solid var(--ptai-border);
-    color: var(--ptai-teal-dark);
+    background: var(--aadi-bg);
+    border-bottom: 1px solid var(--aadi-border);
+    color: var(--aadi-teal-dark);
     display: flex;
     font-size: 13px;
     font-weight: 700;
@@ -283,9 +283,9 @@
     text-transform: uppercase;
 }
 
-.ptai-panel-heading .dashicons,
-.ptai-help__heading .dashicons {
-    color: var(--ptai-teal);
+.aadi-panel-heading .dashicons,
+.aadi-help__heading .dashicons {
+    color: var(--aadi-teal);
     flex-shrink: 0;
     font-size: 16px;
     height: 16px;
@@ -294,31 +294,31 @@
 }
 
 /* Section description paragraph rendered above the form table. */
-.ptai-panel-description {
-    border-bottom: 1px solid var(--ptai-border);
-    color: var(--ptai-text-mid);
+.aadi-panel-description {
+    border-bottom: 1px solid var(--aadi-border);
+    color: var(--aadi-text-mid);
     font-size: 13px;
     padding: 14px 20px;
 }
 
-.ptai-panel-description p {
+.aadi-panel-description p {
     margin: 0 0 8px;
 }
 
-.ptai-panel-description p:last-child {
+.aadi-panel-description p:last-child {
     margin-bottom: 0;
 }
 
 /* When a section has no fields registered, hide the empty form table
    so the panel card doesn't show a bare gap below the description. */
-.ptai-panel-card .form-table:empty,
-.ptai-panel-card .form-table tbody:empty {
+.aadi-panel-card .form-table:empty,
+.aadi-panel-card .form-table tbody:empty {
     display: none;
 }
 
 /* Form table sits inside the panel card — drop its standalone card
    chrome so it doesn't render as a card-in-a-card. */
-.ptai-settings-layout .ptai-settings-main .ptai-panel-card .form-table {
+.aadi-settings-layout .aadi-settings-main .aadi-panel-card .form-table {
     background: transparent;
     border: none;
     box-shadow: none;
@@ -327,134 +327,134 @@
     overflow: visible;
 }
 
-.ptai-settings-layout .ptai-settings-main .form-table th,
-.ptai-settings-layout .ptai-settings-main .form-table td {
+.aadi-settings-layout .aadi-settings-main .form-table th,
+.aadi-settings-layout .aadi-settings-main .form-table td {
     padding: 16px 20px;
-    border-bottom: 1px solid var(--ptai-border);
+    border-bottom: 1px solid var(--aadi-border);
 }
 
-.ptai-settings-layout .ptai-settings-main .form-table tr:last-child th,
-.ptai-settings-layout .ptai-settings-main .form-table tr:last-child td {
+.aadi-settings-layout .aadi-settings-main .form-table tr:last-child th,
+.aadi-settings-layout .aadi-settings-main .form-table tr:last-child td {
     border-bottom: none;
 }
 
-.ptai-settings-layout .ptai-settings-main .form-table th {
-    background: var(--ptai-bg);
+.aadi-settings-layout .aadi-settings-main .form-table th {
+    background: var(--aadi-bg);
     font-weight: 600;
-    color: var(--ptai-text-dark);
+    color: var(--aadi-text-dark);
     width: 220px;
 }
 
 /* WP settings section headings injected by other plugins below the
    tabbed layout (we suppress our own section titles since the panel
    heading already names each section). */
-.ptai-settings-main > form > h2 {
+.aadi-settings-main > form > h2 {
     font-size: 14px;
     font-weight: 700;
-    color: var(--ptai-teal-dark);
+    color: var(--aadi-teal-dark);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin: 24px 0 8px;
     padding-bottom: 6px;
-    border-bottom: 2px solid var(--ptai-teal-light);
+    border-bottom: 2px solid var(--aadi-teal-light);
 }
 
-.ptai-settings-layout .ptai-settings-sidebar {
+.aadi-settings-layout .aadi-settings-sidebar {
     flex: 0 1 300px;
     min-width: 260px;
 }
 
 /* 7. Settings Form Enhancements
 ------------------------------------------------------------- */
-.ptai-role-option {
+.aadi-role-option {
     display: block;
     margin-bottom: 4px;
 }
 
-.ptai-action-link-upgrade {
-    color: var(--ptai-teal);
+.aadi-action-link-upgrade {
+    color: var(--aadi-teal);
     font-weight: 600;
 }
 
 /* Submit button area — standalone bar below the active panel card. */
-.ptai-settings-main .submit {
+.aadi-settings-main .submit {
     padding: 16px 20px;
-    background: var(--ptai-white);
-    border: 1px solid var(--ptai-border);
-    box-shadow: var(--ptai-shadow);
+    background: var(--aadi-white);
+    border: 1px solid var(--aadi-border);
+    box-shadow: var(--aadi-shadow);
     margin: 0;
-    border-radius: var(--ptai-radius);
+    border-radius: var(--aadi-radius);
 }
 
 /* The Help tab is static documentation — hide the Save Settings
    button so it doesn't imply there are unsaved changes there. */
-.ptai-settings-wrap[data-active-tab="ptai-tab-help"]
-    .ptai-settings-main .submit {
+.aadi-settings-wrap[data-active-tab="aadi-tab-help"]
+    .aadi-settings-main .submit {
     display: none;
 }
 
 /* API key field — mask the value visually */
-input[name="ptai_settings[openai_api_key]"] {
+input[name="aadi_settings[openai_api_key]"] {
     font-family: monospace;
     letter-spacing: 0.08em;
 }
 
 /* 8. Meta Boxes
 ------------------------------------------------------------- */
-.ptai-meta-description {
-    color: var(--ptai-text-mid);
+.aadi-meta-description {
+    color: var(--aadi-text-mid);
     font-style: italic;
     margin-bottom: 8px;
     font-size: 13px;
 }
 
-.ptai-doc-summary-wrap { margin-top: 8px; }
+.aadi-doc-summary-wrap { margin-top: 8px; }
 
-.ptai-char-counter {
+.aadi-char-counter {
     font-size: 12px;
-    color: var(--ptai-text-mid);
+    color: var(--aadi-text-mid);
     margin: 4px 0 0;
 }
 
-.ptai-char-counter--warning .ptai-char-count { color: #b45309; }
-.ptai-char-counter--over    .ptai-char-count {
+.aadi-char-counter--warning .aadi-char-count { color: #b45309; }
+.aadi-char-counter--over    .aadi-char-count {
     color: #b91c1c;
     font-weight: 700;
 }
 
-.ptai-ai-disabled-notice {
-    background: var(--ptai-teal-light);
-    border-left: 4px solid var(--ptai-teal);
+.aadi-ai-disabled-notice {
+    background: var(--aadi-teal-light);
+    border-left: 4px solid var(--aadi-teal);
     padding: 8px 12px;
     margin-top: 8px;
     font-size: 13px;
-    border-radius: 0 var(--ptai-radius-sm) var(--ptai-radius-sm) 0;
+    border-radius: 0 var(--aadi-radius-sm) var(--aadi-radius-sm) 0;
 }
 
-.ptai-meta-list { margin: 0 0 0.75em 0; }
-.ptai-meta-list--flush { margin: 0; }
+.aadi-meta-list { margin: 0 0 0.75em 0; }
+.aadi-meta-list--flush { margin: 0; }
 
 /* 8b. Meta box brand theming
 ------------------------------------------------------------- */
 
-/* Teal top accent on all PaperTrail meta boxes */
-#ptai_file_details,
-#ptai_doc_summary_box {
-    border-top: 3px solid var(--ptai-teal);
-    border-radius: 0 0 var(--ptai-radius-sm)
-                   var(--ptai-radius-sm);
+/* Teal top accent on all Ask Adam Doc It meta boxes */
+#aadi_file_details,
+#aadi_doc_summary_box {
+    border-top: 3px solid var(--aadi-teal);
+    border-radius: 0 0 var(--aadi-radius-sm)
+                   var(--aadi-radius-sm);
 }
 
 /* File Details meta box header */
-#ptai_file_details .postbox-header,
-#ptai_doc_summary_box .postbox-header {
-    background: var(--ptai-bg);
-    border-bottom: 1px solid var(--ptai-border);
+#aadi_file_details .postbox-header,
+#aadi_doc_summary_box .postbox-header {
+    background: var(--aadi-bg);
+    border-bottom: 1px solid var(--aadi-border);
 }
 
-#ptai_file_details .postbox-header h2,
-#ptai_doc_summary_box .postbox-header h2 {
-    color: var(--ptai-teal-dark);
+#aadi_file_details .postbox-header h2,
+#aadi_doc_summary_box .postbox-header h2 {
+    color: var(--aadi-teal-dark);
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -462,35 +462,35 @@ input[name="ptai_settings[openai_api_key]"] {
 }
 
 /* Ask Adam Pro meta box — gradient header */
-#ptai_upgrade_sidebar {
-    border-top: 3px solid var(--ptai-teal);
+#aadi_upgrade_sidebar {
+    border-top: 3px solid var(--aadi-teal);
 }
 
-#ptai_upgrade_sidebar .postbox-header {
+#aadi_upgrade_sidebar .postbox-header {
     background: linear-gradient(
         135deg,
-        var(--ptai-teal)      0%,
-        var(--ptai-teal-dark) 100%
+        var(--aadi-teal)      0%,
+        var(--aadi-teal-dark) 100%
     );
     border-bottom: none;
 }
 
-#ptai_upgrade_sidebar .postbox-header h2,
-#ptai_upgrade_sidebar .postbox-header .handle-actions .toggle-indicator {
-    color: var(--ptai-white) !important;
+#aadi_upgrade_sidebar .postbox-header h2,
+#aadi_upgrade_sidebar .postbox-header .handle-actions .toggle-indicator {
+    color: var(--aadi-white) !important;
 }
 
-#ptai_upgrade_sidebar .postbox-header .handle-actions button {
+#aadi_upgrade_sidebar .postbox-header .handle-actions button {
     color: rgba(255,255,255,0.8);
 }
 
-#ptai_upgrade_sidebar .postbox-header .handle-actions button:hover {
-    color: var(--ptai-white);
+#aadi_upgrade_sidebar .postbox-header .handle-actions button:hover {
+    color: var(--aadi-white);
 }
 
 /* 9. Status Badges
 ------------------------------------------------------------- */
-.ptai-status-badge {
+.aadi-status-badge {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 20px;
@@ -501,19 +501,19 @@ input[name="ptai_settings[openai_api_key]"] {
     letter-spacing: 0.02em;
 }
 
-.ptai-status-badge--current {
+.aadi-status-badge--current {
     background: #d1fae5;
     color: #065f46;
 }
-.ptai-status-badge--stale {
+.aadi-status-badge--stale {
     background: #fef3c7;
     color: #92400e;
 }
-.ptai-status-badge--missing {
+.aadi-status-badge--missing {
     background: #fee2e2;
     color: #991b1b;
 }
-.ptai-status-badge--queued {
+.aadi-status-badge--queued {
     background: #e2e8f0;
     color: #475569;
 }
@@ -522,8 +522,8 @@ input[name="ptai_settings[openai_api_key]"] {
 ------------------------------------------------------------- */
 /* WP native notice classes handle base styling. */
 /* Teal tint on AI-active notice */
-.ptai-ai-active-notice.notice-success {
-    border-left-color: var(--ptai-teal);
+.aadi-ai-active-notice.notice-success {
+    border-left-color: var(--aadi-teal);
 }
 
 /* 11. Admin Columns
@@ -535,22 +535,22 @@ input[name="ptai_settings[openai_api_key]"] {
 
 /* 12. Upgrade Sidebar
 ------------------------------------------------------------- */
-.ptai-upgrade-sidebar {
-    background: var(--ptai-white);
-    border: 1px solid var(--ptai-border);
-    border-radius: var(--ptai-radius);
-    box-shadow: var(--ptai-shadow);
+.aadi-upgrade-sidebar {
+    background: var(--aadi-white);
+    border: 1px solid var(--aadi-border);
+    border-radius: var(--aadi-radius);
+    box-shadow: var(--aadi-shadow);
     overflow: hidden;
 }
 
 /* Sidebar mini-hero */
-.ptai-upgrade-sidebar__title {
+.aadi-upgrade-sidebar__title {
     background: linear-gradient(
         135deg,
-        var(--ptai-teal)      0%,
-        var(--ptai-teal-dark) 100%
+        var(--aadi-teal)      0%,
+        var(--aadi-teal-dark) 100%
     );
-    color: var(--ptai-white) !important;
+    color: var(--aadi-white) !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     margin: 0 !important;
@@ -558,22 +558,22 @@ input[name="ptai_settings[openai_api_key]"] {
     letter-spacing: 0.02em;
 }
 
-.ptai-upgrade-sidebar__lead {
-    color: var(--ptai-text-mid);
+.aadi-upgrade-sidebar__lead {
+    color: var(--aadi-text-mid);
     font-size: 13px;
     line-height: 1.5;
     margin: 0;
     padding: 12px 16px 8px;
 }
 
-.ptai-upgrade-sidebar__features {
+.aadi-upgrade-sidebar__features {
     margin: 0;
     padding: 8px 16px 12px 32px;
     list-style: none;
 }
 
-.ptai-upgrade-sidebar__features li {
-    color: var(--ptai-text-dark);
+.aadi-upgrade-sidebar__features li {
+    color: var(--aadi-text-dark);
     font-size: 13px;
     line-height: 1.5;
     padding: 4px 0;
@@ -581,118 +581,118 @@ input[name="ptai_settings[openai_api_key]"] {
 }
 
 /* Teal checkmark bullet */
-.ptai-upgrade-sidebar__features li::before {
+.aadi-upgrade-sidebar__features li::before {
     content: '✓';
-    color: var(--ptai-teal);
+    color: var(--aadi-teal);
     font-weight: 700;
     position: absolute;
     left: -18px;
 }
 
-.ptai-upgrade-sidebar .button-primary {
-    background: var(--ptai-teal);
-    border-color: var(--ptai-teal-dark);
-    color: var(--ptai-white);
+.aadi-upgrade-sidebar .button-primary {
+    background: var(--aadi-teal);
+    border-color: var(--aadi-teal-dark);
+    color: var(--aadi-white);
     display: block;
     margin: 4px 16px 16px;
     text-align: center;
     width: calc(100% - 32px);
     box-sizing: border-box;
-    border-radius: var(--ptai-radius-sm);
+    border-radius: var(--aadi-radius-sm);
     font-weight: 600;
 }
 
-.ptai-upgrade-sidebar .button-primary:hover,
-.ptai-upgrade-sidebar .button-primary:focus {
-    background: var(--ptai-teal-dark);
-    border-color: var(--ptai-teal-darker);
-    color: var(--ptai-white);
+.aadi-upgrade-sidebar .button-primary:hover,
+.aadi-upgrade-sidebar .button-primary:focus {
+    background: var(--aadi-teal-dark);
+    border-color: var(--aadi-teal-darker);
+    color: var(--aadi-white);
 }
 
 /* 13. Responsive
 ------------------------------------------------------------- */
 @media screen and ( max-width: 960px ) {
-    .ptai-settings-layout {
+    .aadi-settings-layout {
         flex-direction: column;
     }
-    .ptai-settings-layout .ptai-settings-sidebar {
+    .aadi-settings-layout .aadi-settings-sidebar {
         width: 100%;
         max-width: 100%;
     }
-    .ptai-admin-hero__badge {
+    .aadi-admin-hero__badge {
         display: none;
     }
 }
 
 @media screen and ( max-width: 600px ) {
-    .ptai-admin-hero__inner {
+    .aadi-admin-hero__inner {
         padding: 16px;
         gap: 12px;
     }
-    .ptai-admin-hero__title {
+    .aadi-admin-hero__title {
         font-size: 18px;
     }
-    .ptai-tab-btn {
+    .aadi-tab-btn {
         padding: 8px 12px;
         font-size: 12px;
     }
-    .ptai-tab-btn .dashicons {
+    .aadi-tab-btn .dashicons {
         display: none;
     }
 }
 
 /* 14. Help / Documentation Tab
 ------------------------------------------------------------- */
-.ptai-help {
+.aadi-help {
     max-width: 800px;
 }
 
-/* .ptai-help__section and .ptai-help__heading share their card +
-   heading-bar styling with .ptai-panel-card / .ptai-panel-heading
+/* .aadi-help__section and .aadi-help__heading share their card +
+   heading-bar styling with .aadi-panel-card / .aadi-panel-heading
    in section 6 above — no duplicate rules needed here. */
 
-.ptai-help__subheading {
-    color: var(--ptai-text-dark);
+.aadi-help__subheading {
+    color: var(--aadi-text-dark);
     font-size: 13px;
     font-weight: 600;
     margin: 16px 20px 8px;
 }
 
-.ptai-help__section > p,
-.ptai-help__section > ol,
-.ptai-help__section > ul,
-.ptai-help__section > table,
-.ptai-help__section > .ptai-help__examples,
-.ptai-help__section > .ptai-help__note {
+.aadi-help__section > p,
+.aadi-help__section > ol,
+.aadi-help__section > ul,
+.aadi-help__section > table,
+.aadi-help__section > .aadi-help__examples,
+.aadi-help__section > .aadi-help__note {
     margin-left: 20px;
     margin-right: 20px;
 }
 
-.ptai-help__steps {
-    counter-reset: ptai-step;
+.aadi-help__steps {
+    counter-reset: aadi-step;
     list-style: none;
     margin: 0;
     padding: 16px 20px;
 }
 
-.ptai-help__steps > li {
-    border-bottom: 1px solid var(--ptai-border);
-    counter-increment: ptai-step;
+.aadi-help__steps > li {
+    border-bottom: 1px solid var(--aadi-border);
+    counter-increment: aadi-step;
     padding: 12px 0 12px 48px;
     position: relative;
 }
 
-.ptai-help__steps > li:last-child {
+.aadi-help__steps > li:last-child {
     border-bottom: none;
 }
 
 /* Teal numbered circle */
-.ptai-help__steps > li::before {
+.aadi-help__steps > li::before {
     align-items: center;
-    background: var(--ptai-teal);
+    background: var(--aadi-teal);
     border-radius: 50%;
-    color: var(--ptai-white);
-    content: counter(ptai-step);
+    color: var(--aadi-white);
+    content: counter(aadi-step);
     display: flex;
     font-size: 11px;
     font-weight: 700;
@@ -704,60 +704,60 @@ input[name="ptai_settings[openai_api_key]"] {
     width: 24px;
 }
 
-.ptai-help__steps > li strong {
-    color: var(--ptai-text-dark);
+.aadi-help__steps > li strong {
+    color: var(--aadi-text-dark);
     display: block;
     font-size: 13px;
     margin-bottom: 4px;
 }
 
-.ptai-help__steps > li p {
-    color: var(--ptai-text-mid);
+.aadi-help__steps > li p {
+    color: var(--aadi-text-mid);
     font-size: 13px;
     margin: 0;
 }
 
-.ptai-help .ptai-help__table {
+.aadi-help .aadi-help__table {
     border-collapse: collapse;
     font-size: 13px;
     margin: 12px 20px 16px;
     width: calc(100% - 40px);
 }
 
-.ptai-help__table th {
-    background: var(--ptai-bg);
-    border: 1px solid var(--ptai-border);
-    color: var(--ptai-text-dark);
+.aadi-help__table th {
+    background: var(--aadi-bg);
+    border: 1px solid var(--aadi-border);
+    color: var(--aadi-text-dark);
     font-weight: 600;
     padding: 8px 12px;
     text-align: left;
 }
 
-.ptai-help__table td {
-    border: 1px solid var(--ptai-border);
-    color: var(--ptai-text-mid);
+.aadi-help__table td {
+    border: 1px solid var(--aadi-border);
+    color: var(--aadi-text-mid);
     padding: 8px 12px;
     vertical-align: top;
 }
 
-.ptai-help__table tr:nth-child(even) td {
-    background: var(--ptai-bg);
+.aadi-help__table tr:nth-child(even) td {
+    background: var(--aadi-bg);
 }
 
-.ptai-help__table code {
-    background: var(--ptai-teal-light);
+.aadi-help__table code {
+    background: var(--aadi-teal-light);
     border-radius: 3px;
-    color: var(--ptai-teal-darker);
+    color: var(--aadi-teal-darker);
     font-size: 12px;
     padding: 1px 5px;
 }
 
-.ptai-help__examples {
+.aadi-help__examples {
     padding-bottom: 16px;
 }
 
-.ptai-help .ptai-help__example-label {
-    color: var(--ptai-text-mid);
+.aadi-help .aadi-help__example-label {
+    color: var(--aadi-text-mid);
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -765,11 +765,11 @@ input[name="ptai_settings[openai_api_key]"] {
     letter-spacing: 0.04em;
 }
 
-.ptai-help__code-block {
+.aadi-help__code-block {
     align-items: baseline;
-    background: var(--ptai-bg);
-    border: 1px solid var(--ptai-border);
-    border-radius: var(--ptai-radius-sm);
+    background: var(--aadi-bg);
+    border: 1px solid var(--aadi-border);
+    border-radius: var(--aadi-radius-sm);
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -777,60 +777,60 @@ input[name="ptai_settings[openai_api_key]"] {
     padding: 8px 12px;
 }
 
-.ptai-help__code-block code {
-    background: var(--ptai-teal-light);
+.aadi-help__code-block code {
+    background: var(--aadi-teal-light);
     border-radius: 3px;
-    color: var(--ptai-teal-darker);
+    color: var(--aadi-teal-darker);
     font-size: 12px;
     padding: 2px 6px;
 }
 
-.ptai-help__code-note {
-    color: var(--ptai-text-mid);
+.aadi-help__code-note {
+    color: var(--aadi-text-mid);
     font-size: 12px;
 }
 
-.ptai-help__list {
+.aadi-help__list {
     margin: 0;
     padding: 12px 20px 12px 40px;
 }
 
-.ptai-help__list li {
-    color: var(--ptai-text-mid);
+.aadi-help__list li {
+    color: var(--aadi-text-mid);
     font-size: 13px;
     margin-bottom: 4px;
     position: relative;
 }
 
-.ptai-help__list li::marker {
-    color: var(--ptai-teal);
+.aadi-help__list li::marker {
+    color: var(--aadi-teal);
 }
 
-.ptai-help__badge-legend {
+.aadi-help__badge-legend {
     list-style: none;
     margin: 0;
     padding: 12px 20px;
 }
 
-.ptai-help__badge-legend li {
+.aadi-help__badge-legend li {
     align-items: center;
     display: flex;
     font-size: 13px;
     gap: 10px;
     margin-bottom: 10px;
-    color: var(--ptai-text-mid);
+    color: var(--aadi-text-mid);
 }
 
-.ptai-help__badge-legend li:last-child {
+.aadi-help__badge-legend li:last-child {
     margin-bottom: 0;
 }
 
-.ptai-help .ptai-help__note {
+.aadi-help .aadi-help__note {
     align-items: flex-start;
-    background: var(--ptai-teal-light);
-    border-radius: 0 0 var(--ptai-radius-sm)
-                   var(--ptai-radius-sm);
-    color: var(--ptai-teal-darker);
+    background: var(--aadi-teal-light);
+    border-radius: 0 0 var(--aadi-radius-sm)
+                   var(--aadi-radius-sm);
+    color: var(--aadi-teal-darker);
     display: flex;
     font-size: 13px;
     gap: 8px;
@@ -838,60 +838,60 @@ input[name="ptai_settings[openai_api_key]"] {
     padding: 12px 20px;
 }
 
-.ptai-help__note .dashicons {
+.aadi-help__note .dashicons {
     flex-shrink: 0;
     margin-top: 1px;
 }
 
 /* CTA section */
-.ptai-help__section--cta {
-    border-top: 3px solid var(--ptai-teal);
+.aadi-help__section--cta {
+    border-top: 3px solid var(--aadi-teal);
 }
 
-.ptai-help__section--cta .ptai-help__heading {
+.aadi-help__section--cta .aadi-help__heading {
     background: linear-gradient(
         135deg,
-        var(--ptai-teal)      0%,
-        var(--ptai-teal-dark) 100%
+        var(--aadi-teal)      0%,
+        var(--aadi-teal-dark) 100%
     );
     border-bottom: none;
-    color: var(--ptai-white);
+    color: var(--aadi-white);
 }
 
-.ptai-help__section--cta .ptai-help__heading .dashicons {
-    color: var(--ptai-white);
+.aadi-help__section--cta .aadi-help__heading .dashicons {
+    color: var(--aadi-white);
 }
 
-.ptai-help__section--cta > p {
+.aadi-help__section--cta > p {
     padding-top: 16px;
 }
 
-.ptai-help .ptai-help__cta-btn {
+.aadi-help .aadi-help__cta-btn {
     margin: 8px 20px 20px 0;
 }
 
-.ptai-help .ptai-help__cta-btn.button-primary {
-    background: var(--ptai-teal);
-    border-color: var(--ptai-teal-dark);
-    color: var(--ptai-white);
+.aadi-help .aadi-help__cta-btn.button-primary {
+    background: var(--aadi-teal);
+    border-color: var(--aadi-teal-dark);
+    color: var(--aadi-white);
 }
 
-.ptai-help .ptai-help__cta-btn.button-primary:hover,
-.ptai-help .ptai-help__cta-btn.button-primary:focus {
-    background: var(--ptai-teal-dark);
-    border-color: var(--ptai-teal-darker);
+.aadi-help .aadi-help__cta-btn.button-primary:hover,
+.aadi-help .aadi-help__cta-btn.button-primary:focus {
+    background: var(--aadi-teal-dark);
+    border-color: var(--aadi-teal-darker);
 }
 
 /* Responsive */
 @media screen and ( max-width: 782px ) {
-    .ptai-help__table {
+    .aadi-help__table {
         display: block;
         overflow-x: auto;
     }
-    .ptai-help__steps > li {
+    .aadi-help__steps > li {
         padding-left: 40px;
     }
-    .ptai-help__badge-legend li {
+    .aadi-help__badge-legend li {
         flex-wrap: wrap;
     }
 }
