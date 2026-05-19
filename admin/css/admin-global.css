@@ -1,0 +1,14 @@
+/*
+ * PaperTrail AI — Global admin brand styles.
+ * Loaded on every admin page to tint the sidebar menu icon.
+ * Keep this file minimal — only rules needed site-wide.
+ */
+
+#adminmenu .menu-icon-ptai_file div.wp-menu-image::before {
+    color: #0d9488;
+}
+
+#adminmenu li.menu-top.current .menu-icon-ptai_file div.wp-menu-image::before,
+#adminmenu li.menu-top:hover .menu-icon-ptai_file div.wp-menu-image::before {
+    color: #ffffff;
+}

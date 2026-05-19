@@ -1,0 +1,266 @@
+/* =============================================================
+ * PaperTrail AI — Public Styles
+ * =============================================================
+ *
+ * Table of contents:
+ *   1. Document library wrapper
+ *   2. Search form
+ *   3. File list and cards
+ *   4. Download button
+ *   5. Pagination
+ *   6. Single document view
+ *   7. Badges and indicators
+ *   8. Responsive
+ * ============================================================= */
+
+/* 1. Document library wrapper
+   ----------------------------------------------------------- */
+.ptai-document-library {
+	margin: 1.5em 0;
+}
+
+.ptai-archive__header {
+	margin-bottom: 1em;
+}
+
+.ptai-archive__title {
+	margin: 0 0 0.25em;
+}
+
+/* 2. Search form
+   ----------------------------------------------------------- */
+.ptai-search-form {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 1.5em;
+	flex-wrap: wrap;
+}
+
+.ptai-search-input {
+	flex: 1;
+	min-width: 200px;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 1em;
+}
+
+.ptai-search-input:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
+.ptai-search-btn {
+	white-space: nowrap;
+}
+
+/* 3. File list and cards
+   ----------------------------------------------------------- */
+.ptai-file-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ptai-columns-1 {
+	display: block;
+}
+
+.ptai-columns-2 {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	gap: 1em;
+}
+
+.ptai-file-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	margin-bottom: 0.75em;
+	background: #fff;
+}
+
+.ptai-columns-2 .ptai-file-card {
+	margin-bottom: 0;
+}
+
+.ptai-file-icon {
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #6b7280;
+}
+
+.ptai-file-icon > span {
+	font-size: 1.5em;
+	line-height: 1;
+}
+
+/* Type-specific glyphs — the inner span carries exactly one icon class. */
+.ptai-icon-file::before  { content: "\1F4C4"; } /* page facing up */
+.ptai-icon-pdf::before   { content: "\1F4D5"; } /* closed book */
+.ptai-icon-image::before { content: "\1F5BC"; } /* framed picture */
+.ptai-icon-audio::before { content: "\1F50A"; } /* speaker */
+.ptai-icon-video::before { content: "\1F39E"; } /* film frames */
+
+.ptai-file-info {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.ptai-file-title {
+	font-weight: 600;
+	text-decoration: none;
+	display: block;
+	margin-bottom: 4px;
+	word-break: break-word;
+}
+
+.ptai-file-title:hover,
+.ptai-file-title:focus {
+	text-decoration: underline;
+}
+
+.ptai-file-meta {
+	font-size: 0.875em;
+	color: #6b7280;
+	display: block;
+	margin-bottom: 6px;
+}
+
+.ptai-download-link {
+	font-size: 0.875em;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.ptai-download-link:hover,
+.ptai-download-link:focus {
+	text-decoration: underline;
+}
+
+/* 4. Download button (single view)
+   ----------------------------------------------------------- */
+.ptai-download-btn {
+	display: inline-block;
+	margin: 0;
+}
+
+.ptai-single__download {
+	margin: 1.25em 0;
+}
+
+/* 5. Pagination
+   ----------------------------------------------------------- */
+.ptai-pagination {
+	margin-top: 1.5em;
+}
+
+.ptai-pagination .page-numbers {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 0;
+	padding: 0;
+}
+
+.ptai-pagination .page-numbers li a,
+.ptai-pagination .page-numbers li span {
+	display: inline-block;
+	padding: 4px 10px;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.ptai-pagination .page-numbers li .current {
+	background: #2271b1;
+	color: #fff;
+	border-color: #2271b1;
+}
+
+/* 6. Single document view
+   ----------------------------------------------------------- */
+.ptai-single__header {
+	margin-bottom: 0.75em;
+}
+
+.ptai-single__terms {
+	font-size: 0.9em;
+	color: #6b7280;
+	margin-top: 0.25em;
+}
+
+.ptai-single__terms-label {
+	font-weight: 600;
+	margin-right: 0.25em;
+}
+
+.ptai-single__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	font-size: 0.9em;
+	color: #4b5563;
+	margin: 0.5em 0;
+}
+
+.ptai-single__icon {
+	display: inline-block;
+}
+
+.ptai-single__summary {
+	margin-top: 1.5em;
+	padding: 12px 16px;
+	border-left: 3px solid #c4b5fd;
+	background: #f5f3ff;
+}
+
+.ptai-single__summary-title {
+	margin: 0 0 0.25em;
+	font-size: 1em;
+	color: #5b21b6;
+}
+
+/* 7. Badges and indicators
+   ----------------------------------------------------------- */
+.ptai-mode-indicator {
+	margin-bottom: 0.5em;
+}
+
+.ptai-ai-badge {
+	display: inline-block;
+	background: #ede9fe;
+	color: #5b21b6;
+	font-size: 0.75em;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 9999px;
+}
+
+.ptai-no-results {
+	color: #6b7280;
+	font-style: italic;
+}
+
+/* 8. Responsive
+   ----------------------------------------------------------- */
+@media ( max-width: 600px ) {
+	.ptai-columns-2 {
+		grid-template-columns: 1fr;
+	}
+	.ptai-search-form {
+		flex-direction: column;
+	}
+	.ptai-search-input {
+		min-width: 0;
+	}
+}
