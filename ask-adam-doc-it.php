@@ -1,19 +1,19 @@
 <?php
 /**
- * Plugin Name:       PaperTrail AI — Smart Document Library
- * Plugin URI:        https://github.com/jackofall1232/papertrail-ai
+ * Plugin Name:       Ask Adam Doc It
+ * Plugin URI:        https://github.com/jackofall1232/ask-adam-doc-it
  * Description:       AI-powered document library for WordPress. Upload, organize, and semantically search files using OpenAI embeddings.
- * Version:           1.0.1
+ * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            jackofall1232
  * Author URI:        https://github.com/jackofall1232
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       papertrail-ai
+ * Text Domain:       ask-adam-doc-it
  * Domain Path:       /languages
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,27 +21,27 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants.
  */
-define( 'PTAI_VERSION', '1.0.1' );
-define( 'PTAI_PLUGIN_FILE', __FILE__ );
-define( 'PTAI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'PTAI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'PTAI_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'PTAI_TEXT_DOMAIN', 'papertrail-ai' );
-define( 'PTAI_CPT', 'ptai_file' );
-define( 'PTAI_TAXONOMY', 'ptai_category' );
-define( 'PTAI_DB_VERSION', '1.0' );
-define( 'PTAI_MIN_PHP', '7.4' );
-define( 'PTAI_MIN_WP', '6.0' );
+define( 'AADI_VERSION', '1.0.0' );
+define( 'AADI_PLUGIN_FILE', __FILE__ );
+define( 'AADI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'AADI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'AADI_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'AADI_TEXT_DOMAIN', 'ask-adam-doc-it' );
+define( 'AADI_CPT', 'aadi_file' );
+define( 'AADI_TAXONOMY', 'aadi_category' );
+define( 'AADI_DB_VERSION', '1.0' );
+define( 'AADI_MIN_PHP', '7.4' );
+define( 'AADI_MIN_WP', '6.0' );
 
 /**
  * Environment compatibility check.
  *
  * @return bool
  */
-function ptai_check_environment() {
+function aadi_check_environment() {
 	global $wp_version;
 
-	if ( version_compare( PHP_VERSION, PTAI_MIN_PHP, '<' ) ) {
+	if ( version_compare( PHP_VERSION, AADI_MIN_PHP, '<' ) ) {
 		add_action(
 			'admin_notices',
 			static function () {
@@ -50,8 +50,8 @@ function ptai_check_environment() {
 					esc_html(
 						sprintf(
 							/* translators: 1: required PHP version, 2: current PHP version */
-							__( 'PaperTrail AI requires PHP %1$s or higher. You are running PHP %2$s.', 'papertrail-ai' ),
-							PTAI_MIN_PHP,
+							__( 'Ask Adam Doc It requires PHP %1$s or higher. You are running PHP %2$s.', 'ask-adam-doc-it' ),
+							AADI_MIN_PHP,
 							PHP_VERSION
 						)
 					)
@@ -61,7 +61,7 @@ function ptai_check_environment() {
 		return false;
 	}
 
-	if ( isset( $wp_version ) && version_compare( $wp_version, PTAI_MIN_WP, '<' ) ) {
+	if ( isset( $wp_version ) && version_compare( $wp_version, AADI_MIN_WP, '<' ) ) {
 		add_action(
 			'admin_notices',
 			static function () use ( $wp_version ) {
@@ -70,8 +70,8 @@ function ptai_check_environment() {
 					esc_html(
 						sprintf(
 							/* translators: 1: required WP version, 2: current WP version */
-							__( 'PaperTrail AI requires WordPress %1$s or higher. You are running WordPress %2$s.', 'papertrail-ai' ),
-							PTAI_MIN_WP,
+							__( 'Ask Adam Doc It requires WordPress %1$s or higher. You are running WordPress %2$s.', 'ask-adam-doc-it' ),
+							AADI_MIN_WP,
 							$wp_version
 						)
 					)
@@ -87,90 +87,90 @@ function ptai_check_environment() {
 /**
  * Load plugin files.
  */
-function ptai_load_files() {
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-loader.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-cpt.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-settings.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-openai.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-embeddings.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-search.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-shortcode.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-block.php';
-	require_once PTAI_PLUGIN_DIR . 'includes/class-ptai-pro.php';
-	require_once PTAI_PLUGIN_DIR . 'admin/class-ptai-admin.php';
-	require_once PTAI_PLUGIN_DIR . 'public/class-ptai-public.php';
+function aadi_load_files() {
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-loader.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-cpt.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-settings.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-openai.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-embeddings.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-search.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-shortcode.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-block.php';
+	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-pro.php';
+	require_once AADI_PLUGIN_DIR . 'admin/class-aadi-admin.php';
+	require_once AADI_PLUGIN_DIR . 'public/class-aadi-public.php';
 }
 
 /**
  * Activation hook.
  */
-function ptai_activate() {
-	if ( ! ptai_check_environment() ) {
+function aadi_activate() {
+	if ( ! aadi_check_environment() ) {
 		return;
 	}
 
-	ptai_load_files();
+	aadi_load_files();
 
-	if ( class_exists( 'PTAI_CPT' ) ) {
-		$cpt = new PTAI_CPT();
+	if ( class_exists( 'AADI_CPT' ) ) {
+		$cpt = new AADI_CPT();
 		$cpt->register_post_type();
 		$cpt->register_taxonomy();
 	}
 
 	flush_rewrite_rules();
 
-	update_option( 'ptai_db_version', PTAI_DB_VERSION );
-	update_option( 'ptai_activated_at', time() );
+	update_option( 'aadi_db_version', AADI_DB_VERSION );
+	update_option( 'aadi_activated_at', time() );
 }
-register_activation_hook( __FILE__, 'ptai_activate' );
+register_activation_hook( __FILE__, 'aadi_activate' );
 
 /**
  * Deactivation hook.
  */
-function ptai_deactivate() {
+function aadi_deactivate() {
 	flush_rewrite_rules();
 }
-register_deactivation_hook( __FILE__, 'ptai_deactivate' );
+register_deactivation_hook( __FILE__, 'aadi_deactivate' );
 
 /**
  * Bootstrap the plugin.
  *
- * PTAI_Loader is the single source of truth for all hook registration.
+ * AADI_Loader is the single source of truth for all hook registration.
  * This function does the bare minimum: environment gate, file loading,
  * text domain, and one loader instantiation.
  */
-function ptai_bootstrap() {
-	if ( ! ptai_check_environment() ) {
+function aadi_bootstrap() {
+	if ( ! aadi_check_environment() ) {
 		return;
 	}
 
-	ptai_load_files();
+	aadi_load_files();
 
 	// Translation loading is handled automatically by WordPress for plugins
 	// hosted on WordPress.org (since WP 4.6). The Text Domain and Domain Path
 	// headers in the plugin file header are sufficient. Calling
 	// load_plugin_textdomain() here is explicitly discouraged by Plugin Check
 	// and is intentionally omitted.
-	$loader = new PTAI_Loader();
+	$loader = new AADI_Loader();
 	$loader->run();
 }
-add_action( 'plugins_loaded', 'ptai_bootstrap' );
+add_action( 'plugins_loaded', 'aadi_bootstrap' );
 
 /**
  * Register the file download and search REST endpoints.
  *
- *   GET /wp-json/papertrail-ai/v1/download/{id}
- *   GET /wp-json/papertrail-ai/v1/search?q=...
+ *   GET /wp-json/ask-adam-doc-it/v1/download/{id}
+ *   GET /wp-json/ask-adam-doc-it/v1/search?q=...
  */
 add_action(
 	'rest_api_init',
 	static function () {
 		register_rest_route(
-			'papertrail-ai/v1',
+			'ask-adam-doc-it/v1',
 			'/download/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => 'ptai_handle_download',
+				'callback'            => 'aadi_handle_download',
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'id' => array(
@@ -185,11 +185,11 @@ add_action(
 		);
 
 		register_rest_route(
-			'papertrail-ai/v1',
+			'ask-adam-doc-it/v1',
 			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => 'ptai_handle_search',
+				'callback'            => 'aadi_handle_search',
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'q'        => array(
@@ -239,35 +239,35 @@ add_action(
  * @param WP_REST_Request $request Request object.
  * @return WP_REST_Response|WP_Error
  */
-function ptai_handle_download( WP_REST_Request $request ) {
+function aadi_handle_download( WP_REST_Request $request ) {
 	$post_id = (int) $request->get_param( 'id' );
 
 	$post = get_post( $post_id );
 	if ( ! $post ) {
-		return new WP_Error( 'ptai_not_found', __( 'Document not found.', 'papertrail-ai' ), array( 'status' => 404 ) );
+		return new WP_Error( 'aadi_not_found', __( 'Document not found.', 'ask-adam-doc-it' ), array( 'status' => 404 ) );
 	}
 
-	if ( PTAI_CPT !== $post->post_type ) {
-		return new WP_Error( 'ptai_invalid_type', __( 'Requested item is not a PaperTrail document.', 'papertrail-ai' ), array( 'status' => 400 ) );
+	if ( AADI_CPT !== $post->post_type ) {
+		return new WP_Error( 'aadi_invalid_type', __( 'Requested item is not a Ask Adam Doc It document.', 'ask-adam-doc-it' ), array( 'status' => 400 ) );
 	}
 
 	if ( 'publish' !== $post->post_status ) {
-		return new WP_Error( 'ptai_not_published', __( 'Document is not published.', 'papertrail-ai' ), array( 'status' => 403 ) );
+		return new WP_Error( 'aadi_not_published', __( 'Document is not published.', 'ask-adam-doc-it' ), array( 'status' => 403 ) );
 	}
 
-	$file_id = (int) get_post_meta( $post_id, '_ptai_file_id', true );
+	$file_id = (int) get_post_meta( $post_id, '_aadi_file_id', true );
 	if ( $file_id <= 0 ) {
-		return new WP_Error( 'ptai_no_file', __( 'No file is attached to this document.', 'papertrail-ai' ), array( 'status' => 404 ) );
+		return new WP_Error( 'aadi_no_file', __( 'No file is attached to this document.', 'ask-adam-doc-it' ), array( 'status' => 404 ) );
 	}
 
 	$attached = get_attached_file( $file_id );
 	if ( ! $attached ) {
-		return new WP_Error( 'ptai_no_file', __( 'Attached file is missing.', 'papertrail-ai' ), array( 'status' => 404 ) );
+		return new WP_Error( 'aadi_no_file', __( 'Attached file is missing.', 'ask-adam-doc-it' ), array( 'status' => 404 ) );
 	}
 
 	$url = wp_get_attachment_url( $file_id );
 	if ( empty( $url ) ) {
-		return new WP_Error( 'ptai_file_missing', __( 'Attached file URL is unavailable.', 'papertrail-ai' ), array( 'status' => 404 ) );
+		return new WP_Error( 'aadi_file_missing', __( 'Attached file URL is unavailable.', 'ask-adam-doc-it' ), array( 'status' => 404 ) );
 	}
 
 	// Rate limiting — prevent counter inflation.
@@ -277,14 +277,14 @@ function ptai_handle_download( WP_REST_Request $request ) {
 	$window        = gmdate( 'Y-m-d-H' );
 	$salt          = wp_salt( 'auth' );
 	$token         = hash( 'sha256', (string) $post_id . $window . $salt );
-	$transient_key = 'ptai_dl_' . substr( $token, 0, 40 );
+	$transient_key = 'aadi_dl_' . substr( $token, 0, 40 );
 
 	if ( ! get_transient( $transient_key ) ) {
 		// First hit in this hour window — count it.
 		set_transient( $transient_key, 1, HOUR_IN_SECONDS );
-		$count = absint( get_post_meta( $post_id, '_ptai_download_count', true ) );
-		update_post_meta( $post_id, '_ptai_download_count', $count + 1 );
-		update_post_meta( $post_id, '_ptai_last_downloaded', current_time( 'mysql' ) );
+		$count = absint( get_post_meta( $post_id, '_aadi_download_count', true ) );
+		update_post_meta( $post_id, '_aadi_download_count', $count + 1 );
+		update_post_meta( $post_id, '_aadi_last_downloaded', current_time( 'mysql' ) );
 	}
 	// File is always served regardless of rate limit state.
 	// Counter accuracy is best-effort. Users always get their download.
@@ -303,7 +303,7 @@ function ptai_handle_download( WP_REST_Request $request ) {
  * @param WP_REST_Request $request Request object.
  * @return WP_REST_Response
  */
-function ptai_handle_search( WP_REST_Request $request ) {
+function aadi_handle_search( WP_REST_Request $request ) {
 	$q        = (string) $request->get_param( 'q' );
 	$category = absint( $request->get_param( 'category' ) );
 	$page     = max( 1, absint( $request->get_param( 'page' ) ) );
@@ -317,11 +317,11 @@ function ptai_handle_search( WP_REST_Request $request ) {
 	// Same hourly rate limit as the AJAX handler. Free version cap to
 	// prevent the plugin from acting as an open OpenAI proxy. Skip empty
 	// queries and AI-off sites so they don't consume the bucket.
-	if ( class_exists( 'PTAI_Public' ) ) {
-		$mode = PTAI_Public::apply_rate_limit( $mode, $q );
+	if ( class_exists( 'AADI_Public' ) ) {
+		$mode = AADI_Public::apply_rate_limit( $mode, $q );
 	}
 
-	$search  = new PTAI_Search();
+	$search  = new AADI_Search();
 	$results = $search->search(
 		$q,
 		array(
@@ -333,7 +333,7 @@ function ptai_handle_search( WP_REST_Request $request ) {
 	);
 
 	$data = array(
-		'posts'     => PTAI_Public::format_posts_for_response( $results['posts'] ),
+		'posts'     => AADI_Public::format_posts_for_response( $results['posts'] ),
 		'total'     => absint( $results['total'] ),
 		'pages'     => absint( $results['pages'] ),
 		'mode_used' => sanitize_key( $results['mode_used'] ),

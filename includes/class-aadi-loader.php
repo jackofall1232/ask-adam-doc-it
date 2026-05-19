@@ -1,68 +1,68 @@
 <?php
 /**
- * Central hook loader for PaperTrail AI.
+ * Central hook loader for Ask Adam Doc It.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Loader
+ * Class AADI_Loader
  *
  * Single source of truth for hook registration. Every subsystem class is
  * instantiated as a side-effect-free object here; all add_action() /
  * add_filter() calls live in the define_* methods. No class self-wires
  * its own hooks via its constructor.
  */
-class PTAI_Loader {
+class AADI_Loader {
 
 	/**
 	 * Custom post type registrar.
 	 *
-	 * @var PTAI_CPT
+	 * @var AADI_CPT
 	 */
 	private $cpt;
 
 	/**
 	 * Settings registrar.
 	 *
-	 * @var PTAI_Settings
+	 * @var AADI_Settings
 	 */
 	private $settings;
 
 	/**
 	 * Admin controller (only instantiated in admin requests).
 	 *
-	 * @var PTAI_Admin|null
+	 * @var AADI_Admin|null
 	 */
 	private $admin = null;
 
 	/**
 	 * Public/frontend controller.
 	 *
-	 * @var PTAI_Public
+	 * @var AADI_Public
 	 */
 	private $public_handler;
 
 	/**
 	 * Embedding lifecycle manager.
 	 *
-	 * @var PTAI_Embeddings
+	 * @var AADI_Embeddings
 	 */
 	private $embeddings;
 
 	/**
 	 * Shortcode renderer.
 	 *
-	 * @var PTAI_Shortcode
+	 * @var AADI_Shortcode
 	 */
 	private $shortcode;
 
 	/**
 	 * Block registrar.
 	 *
-	 * @var PTAI_Block
+	 * @var AADI_Block
 	 */
 	private $block;
 
@@ -71,14 +71,14 @@ class PTAI_Loader {
 	 * hooks here. All hook wiring lives in run() and its children.
 	 */
 	public function __construct() {
-		$this->cpt            = new PTAI_CPT();
-		$this->settings       = new PTAI_Settings();
-		$this->embeddings     = new PTAI_Embeddings();
-		$this->shortcode      = new PTAI_Shortcode();
-		$this->block          = new PTAI_Block( $this->shortcode );
-		$this->public_handler = new PTAI_Public();
+		$this->cpt            = new AADI_CPT();
+		$this->settings       = new AADI_Settings();
+		$this->embeddings     = new AADI_Embeddings();
+		$this->shortcode      = new AADI_Shortcode();
+		$this->block          = new AADI_Block( $this->shortcode );
+		$this->public_handler = new AADI_Public();
 		if ( is_admin() ) {
-			$this->admin = new PTAI_Admin();
+			$this->admin = new AADI_Admin();
 		}
 	}
 
@@ -107,9 +107,9 @@ class PTAI_Loader {
 		add_action( 'init', array( $this->cpt, 'flush_rewrite_rules_if_needed' ), 99 );
 
 		// Embedding lifecycle.
-		add_action( 'save_post_' . PTAI_CPT, array( $this->embeddings, 'on_save_post' ), 20 );
+		add_action( 'save_post_' . AADI_CPT, array( $this->embeddings, 'on_save_post' ), 20 );
 		add_action( 'before_delete_post', array( $this->embeddings, 'on_delete_post' ) );
-		add_action( PTAI_Embeddings::CRON_HOOK, array( $this->embeddings, 'process_embedding_job' ) );
+		add_action( AADI_Embeddings::CRON_HOOK, array( $this->embeddings, 'process_embedding_job' ) );
 
 		// Mirror the delete-on-uninstall flag to a standalone option that
 		// uninstall.php can read without bootstrapping plugin classes.
@@ -117,11 +117,11 @@ class PTAI_Loader {
 		// mirror inside sanitize_settings) ensures the mirror tracks the
 		// actually-stored value on every update path, including early
 		// returns to defaults on malformed input.
-		add_action( 'add_option_' . PTAI_Settings::OPTION_NAME, array( $this->settings, 'sync_uninstall_flag' ) );
-		add_action( 'update_option_' . PTAI_Settings::OPTION_NAME, array( $this->settings, 'sync_uninstall_flag' ) );
+		add_action( 'add_option_' . AADI_Settings::OPTION_NAME, array( $this->settings, 'sync_uninstall_flag' ) );
+		add_action( 'update_option_' . AADI_Settings::OPTION_NAME, array( $this->settings, 'sync_uninstall_flag' ) );
 
 		// Shortcode.
-		add_shortcode( PTAI_Shortcode::TAG, array( $this->shortcode, 'render' ) );
+		add_shortcode( AADI_Shortcode::TAG, array( $this->shortcode, 'render' ) );
 
 		// Block.
 		add_action( 'init', array( $this->block, 'register' ) );
@@ -139,7 +139,7 @@ class PTAI_Loader {
 
 		// Always-on: hooks that may legitimately fire during admin-ajax
 		// or REST flows (post saves, query modifications, settings sync).
-		add_action( 'save_post_' . PTAI_CPT, array( $this->admin, 'save_meta_box' ) );
+		add_action( 'save_post_' . AADI_CPT, array( $this->admin, 'save_meta_box' ) );
 		add_action( 'pre_get_posts', array( $this->admin, 'handle_sortable_columns_query' ) );
 		add_action( 'admin_init', array( $this->settings, 'register_settings' ) );
 
@@ -153,21 +153,21 @@ class PTAI_Loader {
 		add_action( 'admin_menu', array( $this->admin, 'register_settings_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_scripts' ) );
-		add_action( 'add_meta_boxes_' . PTAI_CPT, array( $this->admin, 'add_meta_boxes' ) );
+		add_action( 'add_meta_boxes_' . AADI_CPT, array( $this->admin, 'add_meta_boxes' ) );
 
-		add_filter( 'manage_' . PTAI_CPT . '_posts_columns', array( $this->admin, 'add_admin_columns' ) );
-		add_action( 'manage_' . PTAI_CPT . '_posts_custom_column', array( $this->admin, 'populate_admin_column' ), 10, 2 );
-		add_filter( 'manage_edit-' . PTAI_CPT . '_sortable_columns', array( $this->admin, 'make_admin_columns_sortable' ) );
+		add_filter( 'manage_' . AADI_CPT . '_posts_columns', array( $this->admin, 'add_admin_columns' ) );
+		add_action( 'manage_' . AADI_CPT . '_posts_custom_column', array( $this->admin, 'populate_admin_column' ), 10, 2 );
+		add_filter( 'manage_edit-' . AADI_CPT . '_sortable_columns', array( $this->admin, 'make_admin_columns_sortable' ) );
 
-		add_filter( 'plugin_action_links_' . PTAI_PLUGIN_BASENAME, array( $this->admin, 'add_plugin_action_links' ) );
+		add_filter( 'plugin_action_links_' . AADI_PLUGIN_BASENAME, array( $this->admin, 'add_plugin_action_links' ) );
 
 		add_action( 'admin_notices', array( $this->admin, 'render_ai_status_notice' ) );
 		add_action( 'admin_notices', array( $this->admin, 'render_size_limit_notice' ) );
 		add_filter( 'post_row_actions', array( $this->admin, 'add_row_actions' ), 10, 2 );
-		add_action( 'admin_post_ptai_regenerate_embedding', array( $this->admin, 'handle_regenerate_embedding' ) );
+		add_action( 'admin_post_aadi_regenerate_embedding', array( $this->admin, 'handle_regenerate_embedding' ) );
 
-		add_filter( 'bulk_actions-edit-' . PTAI_CPT, array( $this->admin, 'add_bulk_actions' ) );
-		add_filter( 'handle_bulk_actions-edit-' . PTAI_CPT, array( $this->admin, 'handle_bulk_action' ), 10, 3 );
+		add_filter( 'bulk_actions-edit-' . AADI_CPT, array( $this->admin, 'add_bulk_actions' ) );
+		add_filter( 'handle_bulk_actions-edit-' . AADI_CPT, array( $this->admin, 'handle_bulk_action' ), 10, 3 );
 	}
 
 	/**
@@ -188,12 +188,12 @@ class PTAI_Loader {
 	 */
 	public function define_ajax_hooks() {
 		// Search — logged-in and logged-out visitors.
-		add_action( 'wp_ajax_ptai_search', array( $this->public_handler, 'handle_search_ajax' ) );
-		add_action( 'wp_ajax_nopriv_ptai_search', array( $this->public_handler, 'handle_search_ajax' ) );
+		add_action( 'wp_ajax_aadi_search', array( $this->public_handler, 'handle_search_ajax' ) );
+		add_action( 'wp_ajax_nopriv_aadi_search', array( $this->public_handler, 'handle_search_ajax' ) );
 
 		// Admin dismiss-notice AJAX — only when the admin object exists.
 		if ( isset( $this->admin ) ) {
-			add_action( 'wp_ajax_ptai_dismiss_ai_notice', array( $this->admin, 'handle_dismiss_ai_notice' ) );
+			add_action( 'wp_ajax_aadi_dismiss_ai_notice', array( $this->admin, 'handle_dismiss_ai_notice' ) );
 		}
 	}
 }

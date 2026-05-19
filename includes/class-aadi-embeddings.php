@@ -2,15 +2,15 @@
 /**
  * Embedding storage and lifecycle management.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_Embeddings
+ * Class AADI_Embeddings
  *
- * Generates, stores, and retrieves OpenAI embeddings for ptai_file
+ * Generates, stores, and retrieves OpenAI embeddings for aadi_file
  * posts. The source text is assembled entirely from WordPress data
  * (title, excerpt, doc summary, category names) — no file parsing.
  *
@@ -18,19 +18,19 @@ defined( 'ABSPATH' ) || exit;
  * event so saves return immediately. The explicit `generate_embedding()`
  * entry point still runs synchronously for admin-triggered regeneration.
  */
-class PTAI_Embeddings {
+class AADI_Embeddings {
 
-	const META_KEY      = '_ptai_embedding';
-	const META_KEY_INFO = '_ptai_embedding_info';
-	const CRON_HOOK     = 'ptai_generate_embedding';
+	const META_KEY      = '_aadi_embedding';
+	const META_KEY_INFO = '_aadi_embedding_info';
+	const CRON_HOOK     = 'aadi_generate_embedding';
 
 	/**
 	 * Constructor. Intentionally side-effect-free — all hooks live in
-	 * PTAI_Loader::define_core_hooks().
+	 * AADI_Loader::define_core_hooks().
 	 *
 	 * The save_post_* hook is wired at priority 20 there so that
-	 * PTAI_Admin::save_meta_box (priority 10) has already persisted
-	 * _ptai_doc_summary before this class reads it.
+	 * AADI_Admin::save_meta_box (priority 10) has already persisted
+	 * _aadi_doc_summary before this class reads it.
 	 */
 	public function __construct() {}
 
@@ -53,7 +53,7 @@ class PTAI_Embeddings {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
-		if ( ! PTAI_Settings::is_ai_enabled() ) {
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return;
 		}
 
@@ -78,13 +78,13 @@ class PTAI_Embeddings {
 		if ( $post_id < 1 ) {
 			return;
 		}
-		if ( PTAI_CPT !== get_post_type( $post_id ) ) {
+		if ( AADI_CPT !== get_post_type( $post_id ) ) {
 			return;
 		}
 		if ( 'publish' !== get_post_status( $post_id ) ) {
 			return;
 		}
-		if ( ! PTAI_Settings::is_ai_enabled() ) {
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return;
 		}
 
@@ -103,14 +103,14 @@ class PTAI_Embeddings {
 		if ( is_array( $info ) && isset( $info['source_hash'] ) && $info['source_hash'] === $new_hash ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions
-					sprintf( 'PaperTrail AI: skipping embedding, source text unchanged for post %d', $post_id )
+					sprintf( 'Ask Adam Doc It: skipping embedding, source text unchanged for post %d', $post_id )
 				);
 			}
 			return;
 		}
 
-		$key       = (string) PTAI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new PTAI_OpenAI( $key );
+		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
+		$openai    = new AADI_OpenAI( $key );
 		$embedding = $openai->get_embedding( $text );
 
 		if ( false === $embedding ) {
@@ -142,13 +142,13 @@ class PTAI_Embeddings {
 			$pieces[] = $excerpt;
 		}
 
-		$summary = wp_strip_all_tags( (string) get_post_meta( $post_id, '_ptai_doc_summary', true ) );
+		$summary = wp_strip_all_tags( (string) get_post_meta( $post_id, '_aadi_doc_summary', true ) );
 		$summary = trim( $summary );
 		if ( '' !== $summary ) {
 			$pieces[] = $summary;
 		}
 
-		$terms = get_the_terms( $post_id, PTAI_TAXONOMY );
+		$terms = get_the_terms( $post_id, AADI_TAXONOMY );
 		if ( is_array( $terms ) && ! empty( $terms ) ) {
 			$names = array();
 			foreach ( $terms as $term ) {
@@ -173,12 +173,12 @@ class PTAI_Embeddings {
 		$text = (string) $text;
 		// mb_substr to avoid splitting UTF-8 sequences when truncating.
 		$text = function_exists( 'mb_substr' )
-			? mb_substr( $text, 0, PTAI_OpenAI::MAX_EMBEDDING_CHARS, 'UTF-8' )
-			: substr( $text, 0, PTAI_OpenAI::MAX_EMBEDDING_CHARS );
+			? mb_substr( $text, 0, AADI_OpenAI::MAX_EMBEDDING_CHARS, 'UTF-8' )
+			: substr( $text, 0, AADI_OpenAI::MAX_EMBEDDING_CHARS );
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'PTAI_DEBUG' ) && PTAI_DEBUG ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'AADI_DEBUG' ) && AADI_DEBUG ) {
 			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions
-				'PaperTrail AI [embeddings]: source fields = '
+				'Ask Adam Doc It [embeddings]: source fields = '
 				. implode( ',', $this->get_source_fields( $post_id ) )
 			);
 		}
@@ -201,10 +201,10 @@ class PTAI_Embeddings {
 		if ( '' !== trim( wp_strip_all_tags( (string) get_post_field( 'post_excerpt', $post_id ) ) ) ) {
 			$fields[] = 'excerpt';
 		}
-		if ( '' !== trim( wp_strip_all_tags( (string) get_post_meta( $post_id, '_ptai_doc_summary', true ) ) ) ) {
+		if ( '' !== trim( wp_strip_all_tags( (string) get_post_meta( $post_id, '_aadi_doc_summary', true ) ) ) ) {
 			$fields[] = 'doc_summary';
 		}
-		$terms = get_the_terms( $post_id, PTAI_TAXONOMY );
+		$terms = get_the_terms( $post_id, AADI_TAXONOMY );
 		if ( is_array( $terms ) && ! empty( $terms ) ) {
 			$fields[] = 'categories';
 		}
@@ -237,7 +237,7 @@ class PTAI_Embeddings {
 			self::META_KEY_INFO,
 			wp_json_encode(
 				array(
-					'model'         => PTAI_OpenAI::EMBEDDING_MODEL,
+					'model'         => AADI_OpenAI::EMBEDDING_MODEL,
 					'dims'          => count( $embedding ),
 					'generated_at'  => current_time( 'mysql' ),
 					'source_length' => strlen( $text ),
@@ -261,7 +261,7 @@ class PTAI_Embeddings {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return false;
 		}
-		if ( ! PTAI_Settings::is_ai_enabled() ) {
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return false;
 		}
 
@@ -270,8 +270,8 @@ class PTAI_Embeddings {
 			return false;
 		}
 
-		$key       = (string) PTAI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new PTAI_OpenAI( $key );
+		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
+		$openai    = new AADI_OpenAI( $key );
 		$embedding = $openai->get_embedding( $text );
 
 		if ( false === $embedding ) {
@@ -326,7 +326,7 @@ class PTAI_Embeddings {
 		if ( ! is_array( $embedding ) ) {
 			return false;
 		}
-		if ( count( $embedding ) !== PTAI_OpenAI::EMBEDDING_DIMS ) {
+		if ( count( $embedding ) !== AADI_OpenAI::EMBEDDING_DIMS ) {
 			return false;
 		}
 		return $embedding;
@@ -360,7 +360,7 @@ class PTAI_Embeddings {
 	 * @return void
 	 */
 	public function on_delete_post( $post_id ) {
-		if ( PTAI_CPT !== get_post_type( $post_id ) ) {
+		if ( AADI_CPT !== get_post_type( $post_id ) ) {
 			return;
 		}
 		$this->delete_embedding( $post_id );
@@ -377,10 +377,10 @@ class PTAI_Embeddings {
 	public function get_embedding_status( $post_id ) {
 		// Treat a tripped circuit breaker as disabled — the UI shouldn't
 		// offer actions that will hit a known-bad key.
-		if ( get_option( 'ptai_openai_auth_failed' ) ) {
+		if ( get_option( 'aadi_openai_auth_failed' ) ) {
 			return 'disabled';
 		}
-		if ( ! PTAI_Settings::is_ai_enabled() ) {
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return 'disabled';
 		}
 		if ( ! $this->embedding_exists( $post_id ) ) {

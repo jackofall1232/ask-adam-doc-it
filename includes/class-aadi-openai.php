@@ -2,19 +2,19 @@
 /**
  * OpenAI API client wrapper.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class PTAI_OpenAI
+ * Class AADI_OpenAI
  *
  * Thin wrapper around the OpenAI REST API for embeddings and chat
  * completions. All requests have hard timeouts. All responses are
  * defensively parsed. The API key is never logged or echoed.
  */
-class PTAI_OpenAI {
+class AADI_OpenAI {
 
 	const EMBEDDING_MODEL     = 'text-embedding-3-small';
 	const CHAT_MODEL          = 'gpt-5-mini';
@@ -62,7 +62,7 @@ class PTAI_OpenAI {
 		if ( 0 !== strpos( $this->api_key, 'sk-' ) ) {
 			return false;
 		}
-		if ( get_option( 'ptai_openai_auth_failed' ) ) {
+		if ( get_option( 'aadi_openai_auth_failed' ) ) {
 			return false;
 		}
 		return true;
@@ -283,7 +283,7 @@ class PTAI_OpenAI {
 	 * @return void
 	 */
 	private function handle_error( $response, $context = '' ) {
-		$message = 'PaperTrail AI [' . sanitize_key( $context ) . ']: ';
+		$message = 'Ask Adam Doc It [' . sanitize_key( $context ) . ']: ';
 
 		if ( is_wp_error( $response ) ) {
 			$message .= $response->get_error_message();
@@ -309,10 +309,10 @@ class PTAI_OpenAI {
 	 * @return void
 	 */
 	private function trigger_circuit_breaker() {
-		update_option( 'ptai_openai_auth_failed', true );
+		update_option( 'aadi_openai_auth_failed', true );
 		$this->last_error = __(
 			'OpenAI API key rejected (401). Please update your key in Settings.',
-			'papertrail-ai'
+			'ask-adam-doc-it'
 		);
 	}
 

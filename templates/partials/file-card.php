@@ -5,9 +5,9 @@
  * Expected variables:
  *   - $post WP_Post — the document to render.
  *
- * Themes may override via `papertrail-ai/partials/file-card.php`.
+ * Themes may override via `ask-adam-doc-it/partials/file-card.php`.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,57 +16,57 @@ if ( ! isset( $post ) || ! ( $post instanceof WP_Post ) ) {
 	return;
 }
 
-$ptai_card_id     = (int) $post->ID;
-$ptai_card_type   = (string) get_post_meta( $ptai_card_id, '_ptai_file_type', true );
-$ptai_card_ext    = (string) get_post_meta( $ptai_card_id, '_ptai_file_ext', true );
-$ptai_card_size   = absint( get_post_meta( $ptai_card_id, '_ptai_file_size', true ) );
-$ptai_card_downs  = absint( get_post_meta( $ptai_card_id, '_ptai_download_count', true ) );
-$ptai_card_fid    = absint( get_post_meta( $ptai_card_id, '_ptai_file_id', true ) );
-$ptai_card_dl_url = $ptai_card_fid > 0
-	? get_rest_url( null, 'papertrail-ai/v1/download/' . $ptai_card_id )
+$aadi_card_id     = (int) $post->ID;
+$aadi_card_type   = (string) get_post_meta( $aadi_card_id, '_aadi_file_type', true );
+$aadi_card_ext    = (string) get_post_meta( $aadi_card_id, '_aadi_file_ext', true );
+$aadi_card_size   = absint( get_post_meta( $aadi_card_id, '_aadi_file_size', true ) );
+$aadi_card_downs  = absint( get_post_meta( $aadi_card_id, '_aadi_download_count', true ) );
+$aadi_card_fid    = absint( get_post_meta( $aadi_card_id, '_aadi_file_id', true ) );
+$aadi_card_dl_url = $aadi_card_fid > 0
+	? get_rest_url( null, 'ask-adam-doc-it/v1/download/' . $aadi_card_id )
 	: '';
 
-$ptai_card_icon = 'ptai-icon-file';
-if ( 'application/pdf' === $ptai_card_type ) {
-	$ptai_card_icon = 'ptai-icon-pdf';
-} elseif ( 0 === strpos( $ptai_card_type, 'image/' ) ) {
-	$ptai_card_icon = 'ptai-icon-image';
-} elseif ( 0 === strpos( $ptai_card_type, 'audio/' ) ) {
-	$ptai_card_icon = 'ptai-icon-audio';
-} elseif ( 0 === strpos( $ptai_card_type, 'video/' ) ) {
-	$ptai_card_icon = 'ptai-icon-video';
+$aadi_card_icon = 'aadi-icon-file';
+if ( 'application/pdf' === $aadi_card_type ) {
+	$aadi_card_icon = 'aadi-icon-pdf';
+} elseif ( 0 === strpos( $aadi_card_type, 'image/' ) ) {
+	$aadi_card_icon = 'aadi-icon-image';
+} elseif ( 0 === strpos( $aadi_card_type, 'audio/' ) ) {
+	$aadi_card_icon = 'aadi-icon-audio';
+} elseif ( 0 === strpos( $aadi_card_type, 'video/' ) ) {
+	$aadi_card_icon = 'aadi-icon-video';
 }
 
-$ptai_card_label = '' !== $ptai_card_ext ? strtoupper( $ptai_card_ext ) : $ptai_card_type;
+$aadi_card_label = '' !== $aadi_card_ext ? strtoupper( $aadi_card_ext ) : $aadi_card_type;
 ?>
-<li class="ptai-file-card">
-	<div class="ptai-file-icon">
-		<span class="<?php echo esc_attr( $ptai_card_icon ); ?>" aria-hidden="true"></span>
+<li class="aadi-file-card">
+	<div class="aadi-file-icon">
+		<span class="<?php echo esc_attr( $aadi_card_icon ); ?>" aria-hidden="true"></span>
 	</div>
-	<div class="ptai-file-info">
-		<a class="ptai-file-title" href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+	<div class="aadi-file-info">
+		<a class="aadi-file-title" href="<?php echo esc_url( get_permalink( $post ) ); ?>">
 			<?php echo esc_html( get_the_title( $post ) ); ?>
 		</a>
-		<span class="ptai-file-meta">
+		<span class="aadi-file-meta">
 			<?php
-			$ptai_meta_bits = array();
-			if ( '' !== $ptai_card_label ) {
-				$ptai_meta_bits[] = $ptai_card_label;
+			$aadi_meta_bits = array();
+			if ( '' !== $aadi_card_label ) {
+				$aadi_meta_bits[] = $aadi_card_label;
 			}
-			if ( $ptai_card_size > 0 ) {
-				$ptai_meta_bits[] = size_format( $ptai_card_size );
+			if ( $aadi_card_size > 0 ) {
+				$aadi_meta_bits[] = size_format( $aadi_card_size );
 			}
-			$ptai_meta_bits[] = sprintf(
+			$aadi_meta_bits[] = sprintf(
 				/* translators: %s: download count. */
-				_n( '%s download', '%s downloads', $ptai_card_downs, 'papertrail-ai' ),
-				number_format_i18n( $ptai_card_downs )
+				_n( '%s download', '%s downloads', $aadi_card_downs, 'ask-adam-doc-it' ),
+				number_format_i18n( $aadi_card_downs )
 			);
-			echo esc_html( implode( ' · ', $ptai_meta_bits ) );
+			echo esc_html( implode( ' · ', $aadi_meta_bits ) );
 			?>
 		</span>
-		<?php if ( $ptai_card_fid > 0 ) : ?>
-			<a class="ptai-download-link" href="<?php echo esc_url( $ptai_card_dl_url ); ?>">
-				<?php esc_html_e( 'Download', 'papertrail-ai' ); ?>
+		<?php if ( $aadi_card_fid > 0 ) : ?>
+			<a class="aadi-download-link" href="<?php echo esc_url( $aadi_card_dl_url ); ?>">
+				<?php esc_html_e( 'Download', 'ask-adam-doc-it' ); ?>
 			</a>
 		<?php endif; ?>
 	</div>

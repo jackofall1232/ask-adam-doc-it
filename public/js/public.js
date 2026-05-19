@@ -1,19 +1,19 @@
-/* global jQuery, ptaiPublic */
+/* global jQuery, aadiPublic */
 /**
- * PaperTrail AI — Public scripts.
+ * Ask Adam Doc It — Public scripts.
  *
  * Handles AJAX search submission for the front-end search bar.
  *
- * @package PaperTrail_AI
+ * @package Ask_Adam_Doc_It
  */
-( function ( $, ptaiPublic ) {
+( function ( $, aadiPublic ) {
 	'use strict';
 
-	if ( typeof ptaiPublic === 'undefined' || ! ptaiPublic ) {
+	if ( typeof aadiPublic === 'undefined' || ! aadiPublic ) {
 		return;
 	}
 
-	var $forms = $( '.ptai-search-form' );
+	var $forms = $( '.aadi-search-form' );
 	if ( ! $forms.length ) {
 		return;
 	}
@@ -21,12 +21,12 @@
 	/* 1. Per-form AJAX submit handler
 	------------------------------------------------------------ */
 	// Use $(this) inside the handler so each submit is scoped to the
-	// form that fired it. A page can render multiple [papertrail]
+	// form that fired it. A page can render multiple [ask_adam_doc_it]
 	// libraries; each must search and update only its own list.
 	$forms.on( 'submit', function ( e ) {
 		var $form    = $( this );
-		var $btn     = $form.find( '.ptai-search-btn' );
-		var $library = $form.closest( '.ptai-document-library' );
+		var $btn     = $form.find( '.aadi-search-btn' );
+		var $library = $form.closest( '.aadi-document-library' );
 
 		if ( ! $library.length ) {
 			// No library wrapper — let the form submit normally.
@@ -35,21 +35,21 @@
 
 		e.preventDefault();
 
-		var originalBtn = $btn.data( 'ptai-original-text' );
+		var originalBtn = $btn.data( 'aadi-original-text' );
 		if ( typeof originalBtn === 'undefined' ) {
 			originalBtn = $btn.text();
-			$btn.data( 'ptai-original-text', originalBtn );
+			$btn.data( 'aadi-original-text', originalBtn );
 		}
 
-		var query    = $form.find( '.ptai-search-input' ).first().val() || '';
-		var category = $form.find( '[name="ptai_category"]' ).val() || 0;
-		var mode     = $form.find( '[name="ptai_mode"]' ).val() || 'auto';
+		var query    = $form.find( '.aadi-search-input' ).first().val() || '';
+		var category = $form.find( '[name="aadi_category"]' ).val() || 0;
+		var mode     = $form.find( '[name="aadi_mode"]' ).val() || 'auto';
 
-		$btn.prop( 'disabled', true ).text( ptaiPublic.strings.searching );
+		$btn.prop( 'disabled', true ).text( aadiPublic.strings.searching );
 
-		$.post( ptaiPublic.ajax_url, {
-			action:   'ptai_search',
-			nonce:    ptaiPublic.nonce,
+		$.post( aadiPublic.ajax_url, {
+			action:   'aadi_search',
+			nonce:    aadiPublic.nonce,
 			query:    query,
 			category: category,
 			page:     1,
@@ -66,7 +66,7 @@
 				renderError( $library );
 			} )
 			.always( function () {
-				$btn.prop( 'disabled', false ).text( originalBtn || ptaiPublic.strings.search );
+				$btn.prop( 'disabled', false ).text( originalBtn || aadiPublic.strings.search );
 			} );
 	} );
 
@@ -76,15 +76,15 @@
 		// Drop any pre-existing "no results" paragraph from the
 		// initial server render — otherwise it sticks around behind
 		// fresh AJAX results.
-		$library.find( '.ptai-no-results' ).remove();
+		$library.find( '.aadi-no-results' ).remove();
 
 		// AJAX always asks for page 1, so any pagination from the
 		// initial server render no longer applies. Drop it.
-		$library.find( '.ptai-pagination' ).remove();
+		$library.find( '.aadi-pagination' ).remove();
 
-		var $list = $library.find( '.ptai-file-list' );
+		var $list = $library.find( '.aadi-file-list' );
 		if ( ! $list.length ) {
-			$list = $( '<ul class="ptai-file-list ptai-columns-1"></ul>' ).appendTo( $library );
+			$list = $( '<ul class="aadi-file-list aadi-columns-1"></ul>' ).appendTo( $library );
 		}
 		return $list;
 	}
@@ -98,20 +98,20 @@
 			var downloadLink = '';
 			if ( post.has_file && post.download_url ) {
 				downloadLink =
-					'<a class="ptai-download-link" href="' + escHtml( post.download_url ) + '">' +
-						escHtml( ptaiPublic.strings.download ) +
+					'<a class="aadi-download-link" href="' + escHtml( post.download_url ) + '">' +
+						escHtml( aadiPublic.strings.download ) +
 					'</a>';
 			}
 			html +=
-				'<li class="ptai-file-card">' +
-					'<div class="ptai-file-icon">' +
-						'<span class="' + escHtml( post.icon_class || 'ptai-icon-file' ) + '" aria-hidden="true"></span>' +
+				'<li class="aadi-file-card">' +
+					'<div class="aadi-file-icon">' +
+						'<span class="' + escHtml( post.icon_class || 'aadi-icon-file' ) + '" aria-hidden="true"></span>' +
 					'</div>' +
-					'<div class="ptai-file-info">' +
-						'<a class="ptai-file-title" href="' + escHtml( post.permalink ) + '">' +
+					'<div class="aadi-file-info">' +
+						'<a class="aadi-file-title" href="' + escHtml( post.permalink ) + '">' +
 							escHtml( post.title ) +
 						'</a>' +
-						'<span class="ptai-file-meta">' + escHtml( post.meta_text || '' ) + '</span>' +
+						'<span class="aadi-file-meta">' + escHtml( post.meta_text || '' ) + '</span>' +
 						downloadLink +
 					'</div>' +
 				'</li>';
@@ -122,8 +122,8 @@
 	function renderEmpty( $library ) {
 		var $list = ensureList( $library );
 		$list.html(
-			'<li class="ptai-no-results">' +
-			escHtml( ptaiPublic.strings.no_results ) +
+			'<li class="aadi-no-results">' +
+			escHtml( aadiPublic.strings.no_results ) +
 			'</li>'
 		);
 	}
@@ -131,8 +131,8 @@
 	function renderError( $library ) {
 		var $list = ensureList( $library );
 		$list.html(
-			'<li class="ptai-no-results">' +
-			escHtml( ptaiPublic.strings.error ) +
+			'<li class="aadi-no-results">' +
+			escHtml( aadiPublic.strings.error ) +
 			'</li>'
 		);
 	}
@@ -151,4 +151,4 @@
 			.replace( /'/g, '&#039;' );
 	}
 
-}( jQuery, window.ptaiPublic || null ) );
+}( jQuery, window.aadiPublic || null ) );

@@ -1,8 +1,8 @@
 # Copyright (C) 2025 Ask Adam (askadamit.com)
-# This file is distributed under the same license as the PaperTrail AI plugin.
+# This file is distributed under the same license as the Ask Adam Doc It plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: PaperTrail AI 1.0.0\n"
+"Project-Id-Version: Ask Adam Doc It 1.0.0\n"
 "Report-Msgid-Bugs-To: https://askadamit.com\n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "MIME-Version: 1.0\n"
@@ -13,5 +13,5 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: PaperTrail AI build\n"
-"X-Domain: papertrail-ai\n"
+"X-Generator: Ask Adam Doc It build\n"
+"X-Domain: ask-adam-doc-it\n"
