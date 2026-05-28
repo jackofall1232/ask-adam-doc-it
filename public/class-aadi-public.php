@@ -428,19 +428,6 @@ class AADI_Public {
 			wp_send_json_error( array( 'message' => __( 'The summary service is busy right now. Please try again later.', 'ask-adam-doc-it' ) ) );
 		}
 
-		// Read the file via the WordPress filesystem abstraction. Only reached
-		// on a cache miss for a supported type, so large files are never pulled
-		// into memory needlessly.
-		global $wp_filesystem;
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-		WP_Filesystem();
-		$file_contents = ( $wp_filesystem instanceof WP_Filesystem_Base ) ? $wp_filesystem->get_contents( $file_path ) : false;
-		if ( false === $file_contents || '' === $file_contents ) {
-			wp_send_json_error( array( 'message' => __( 'The attached file could not be read.', 'ask-adam-doc-it' ) ) );
-		}
-
 		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
 			wp_send_json_error( array( 'message' => __( 'AI features require WordPress 7.0 or higher.', 'ask-adam-doc-it' ) ) );
 			wp_die();
@@ -458,20 +445,29 @@ class AADI_Public {
 			wp_die();
 		}
 
-		$result = $prompt
-			->with_file(
-				new \WordPress\AiClient\Files\DTO\File(
-					$file_contents,
-					$mime_type,
-					basename( $file_path )
+		// The AI Client File DTO accepts a URL, data URI, or local file path
+		// (it reads and base64-encodes the file itself) — not raw bytes — and
+		// throws InvalidArgumentException/RuntimeException on bad or unreadable
+		// input. Build it inside a try/catch so those exceptions surface as a
+		// clean JSON error instead of fataling this public AJAX request.
+		try {
+			$result = $prompt
+				->with_file(
+					new \WordPress\AiClient\Files\DTO\File( $file_path, $mime_type )
 				)
-			)
-			->using_system_instruction(
-				'You are a helpful assistant that writes concise plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences only. No preamble, no markdown, no bullet points.'
-			)
-			->with_text( 'Summarize this document in 2-3 sentences.' )
-			->using_max_tokens( 200 )
-			->generate_text();
+				->using_system_instruction(
+					'You are a helpful assistant that writes concise plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences only. No preamble, no markdown, no bullet points.'
+				)
+				->with_text( 'Summarize this document in 2-3 sentences.' )
+				->using_max_tokens( 200 )
+				->generate_text();
+		} catch ( \Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
 
 		if ( is_wp_error( $result ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
