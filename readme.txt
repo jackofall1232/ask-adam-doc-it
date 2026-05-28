@@ -1,20 +1,20 @@
 === Ask Adam Doc It ===
 Contributors: jackofall1232
-Tags: document library, file manager, AI search, PDF, OpenAI
-Requires at least: 6.0
+Tags: document library, file manager, AI search, PDF, AI Client
+Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Free WordPress document library with optional AI semantic search via your own OpenAI API key. Part of the Ask Adam suite.
+Free WordPress document library with optional AI semantic search powered by the WordPress 7.0 built-in AI Client. Part of the Ask Adam suite.
 
 == Description ==
 
 Ask Adam Doc It is a free-forever document library for WordPress. Upload PDFs, Word documents, spreadsheets, images, and any other file types your media library accepts, then organize them with categories and surface them with a shortcode, a Gutenberg block, or built-in archive templates.
 
-Drop in your own OpenAI API key to unlock semantic search — find documents by meaning, not just keywords. The plugin works fully without an API key; AI is purely optional.
+AI features are powered by the WordPress 7.0 built-in AI Client (`wp_ai_client_prompt()`). There is no API key to configure in the plugin — install and configure an AI provider plugin (such as AI Provider for OpenAI) under Settings → Connectors, and semantic search and document summaries light up automatically. The plugin works fully without any AI provider; AI is purely optional.
 
 Ask Adam Doc It is part of the **Ask Adam** suite by [askadamit.com](https://askadamit.com). The free plugin is feature-complete on its own. If you want conversational document Q&A, multi-document context retrieval, bulk indexing, and analytics, those live in Ask Adam Pro at [askadamit.com/purchase](https://askadamit.com/purchase) — a separate product.
 
@@ -25,7 +25,7 @@ Ask Adam Doc It is part of the **Ask Adam** suite by [askadamit.com](https://ask
 * Frontend archive and single views with theme-overridable templates
 * `[ask_adam_doc_it]` shortcode and a matching Gutenberg block
 * Classic keyword search across your library
-* Optional AI-powered semantic search via your own OpenAI API key
+* Optional AI-powered semantic search via the WordPress 7.0 AI Client
 * Admin columns and meta boxes for quick file management
 * Clean uninstall with an opt-in "delete my data" switch
 
@@ -33,7 +33,7 @@ There are no feature locks, license checks, or paid upgrades inside this plugin.
 
 == External Services ==
 
-When an OpenAI API key is provided in Settings, Ask Adam Doc It sends document summary text to the OpenAI API to generate search embeddings.
+When an AI provider is configured through the WordPress 7.0 AI Client (Settings → Connectors), Ask Adam Doc It sends document summary text to that provider to generate on-demand summaries. When an OpenAI credential is available for embeddings (via an AI provider plugin or the `aadi_openai_api_key` filter), document summary text is also sent to the OpenAI API to generate search embeddings.
 
 **What data is sent:**
 
@@ -42,27 +42,31 @@ When an OpenAI API key is provided in Settings, Ask Adam Doc It sends document s
 
 **When data is sent:** Document metadata is sent when a document is published or updated (via WP-Cron, a few seconds after save), or when an admin manually regenerates an embedding. Visitor search text is sent each time a visitor submits an AI-mode search.
 
-**This feature is entirely optional.** The plugin works fully without an API key using keyword search.
+**This feature is entirely optional.** The plugin works fully without any AI provider using keyword search.
+
+**Summaries:** Sent to whichever AI provider you connect through the WordPress 7.0 AI Client (Settings → Connectors). The data-handling, privacy policy, and terms of that provider apply — review them for the connector you install (for example, AI Provider for OpenAI sends data to the OpenAI API).
+
+**Embeddings (semantic search):** When an OpenAI credential is available, document summary text and visitor search queries are sent to the OpenAI API.
 
 **Service:** OpenAI API (api.openai.com)
 **Privacy Policy:** [https://openai.com/privacy](https://openai.com/privacy)
 **Terms of Service:** [https://openai.com/terms](https://openai.com/terms)
 
-No data is sent to any service when no API key is configured.
+No data is sent to any service when no AI provider is configured.
 
 == Installation ==
 
 1. Upload the `ask-adam-doc-it` folder to `/wp-content/plugins/`, or install via the Plugins screen in WordPress.
 2. Activate **Ask Adam Doc It** through the Plugins screen.
-3. (Optional) Visit **Files → Settings** and paste your OpenAI API key to enable semantic search.
+3. (Optional) Install an AI provider plugin (such as AI Provider for OpenAI) and configure it under **Settings → Connectors** to enable semantic search and document summaries.
 4. Add your first document under **Files → Add New**.
 5. Embed the library anywhere with the `[ask_adam_doc_it]` shortcode or the Ask Adam Doc It block.
 
 == Frequently Asked Questions ==
 
-= Does it work without an OpenAI API key? =
+= Does it work without an AI provider? =
 
-Yes. The plugin is fully functional with zero configuration. Without an API key you get a complete document library with classic keyword search. Adding an API key only enables the optional AI semantic search layer.
+Yes. The plugin is fully functional with zero configuration. Without an AI provider you get a complete document library with classic keyword search. Configuring an AI provider through the WordPress 7.0 AI Client (Settings → Connectors) only enables the optional AI semantic search and summary layer.
 
 = Is this really free? =
 
@@ -83,10 +87,15 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 == Screenshots ==
 
 1. The document library admin list view with file type, size, and download statistics columns.
-2. The settings page with optional OpenAI API key and upload size configuration.
+2. The settings page with AI summary toggle and upload size configuration.
 3. The frontend document library shortcode output with search and AI-mode results.
 
 == Changelog ==
+
+= 1.2.0 =
+* Changed: Migrated to WordPress 7.0 built-in AI Client. AI features now use wp_ai_client_prompt() — no API key configuration needed in plugin settings. Install and configure an AI provider plugin (such as AI Provider for OpenAI) under Settings → Connectors.
+* Removed: OpenAI API key field from plugin settings.
+* Removed: Circuit breaker and base64 key storage.
 
 = 1.1.0 =
 * New: Optional AI Summarize button on document cards and single document pages. When enabled in Settings, visitors can request a plain-English 2-3 sentence summary of any document on demand before downloading.
@@ -109,6 +118,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 * Opt-in clean uninstall.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Requires WordPress 7.0. AI features now use the built-in AI Client — remove your old API key worries and configure an AI provider under Settings → Connectors instead.
 
 = 1.1.0 =
 Adds optional AI document summarization. Enable it under Settings → AI Configuration after upgrading.

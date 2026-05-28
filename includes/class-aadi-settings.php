@@ -13,12 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * Registers the admin settings screen, sanitizes input, and provides
  * read access to Ask Adam Doc It configuration.
  *
- * The OpenAI API key is stored with a base64 wrapper. This is
- * OBFUSCATION, NOT ENCRYPTION — it prevents casual disclosure of
- * the raw key when an admin happens to browse the wp_options table
- * or a database dump. For real protection, set the key from an
- * environment variable or a constant in wp-config.php and treat the
- * site as a trusted compute environment.
+ * As of 1.2.0 the plugin no longer stores an OpenAI API key. AI text
+ * generation is delegated to the WordPress 7.0 built-in AI Client
+ * (wp_ai_client_prompt()); credentials are managed by an AI provider
+ * plugin through the core Connectors API, not here.
  */
 class AADI_Settings {
 
@@ -50,8 +48,6 @@ class AADI_Settings {
 	 */
 	public static function get_defaults() {
 		return array(
-			'openai_api_key'      => '',
-			'ai_enabled_override' => true,
 			'summarize_enabled'   => false,
 			'max_image_size'      => 5,
 			'max_video_size'      => 50,
@@ -114,20 +110,6 @@ class AADI_Settings {
 
 		// AI section.
 		add_settings_field(
-			'openai_api_key',
-			__( 'OpenAI API Key', 'ask-adam-doc-it' ),
-			array( $this, 'render_field_api_key' ),
-			self::PAGE_SLUG,
-			'aadi_section_ai'
-		);
-		add_settings_field(
-			'ai_enabled_override',
-			__( 'Enable AI Features', 'ask-adam-doc-it' ),
-			array( $this, 'render_field_ai_enabled_override' ),
-			self::PAGE_SLUG,
-			'aadi_section_ai'
-		);
-		add_settings_field(
 			'summarize_enabled',
 			__( 'Document Summarize Button', 'ask-adam-doc-it' ),
 			array( $this, 'render_field_summarize_enabled' ),
@@ -181,7 +163,7 @@ class AADI_Settings {
 	 * Section description renderers.
 	 */
 	public function render_section_ai() {
-		echo '<p>' . esc_html__( 'Configure the OpenAI API key used to generate embeddings and answer questions.', 'ask-adam-doc-it' ) . '</p>';
+		echo '<p>' . esc_html__( 'AI features use the WordPress 7.0 built-in AI Client. Configure an AI provider under Settings → Connectors; no API key is needed here.', 'ask-adam-doc-it' ) . '</p>';
 	}
 	public function render_section_uploads() {
 		echo '<p>' . esc_html__( 'Per-type file size limits applied on top of the WordPress upload limit.', 'ask-adam-doc-it' ) . '</p>';
@@ -196,50 +178,6 @@ class AADI_Settings {
 	/**
 	 * Field renderers.
 	 */
-	public function render_field_api_key() {
-		$stored = (string) self::get_option( 'openai_api_key', '' );
-		$masked = '' !== $stored ? str_repeat( '•', 8 ) . substr( $stored, -4 ) : '';
-		// Never render the raw key into HTML. The submit handler treats an
-		// empty submission as "keep the existing key".
-		$placeholder = '' !== $stored ? '••••••••••••' : 'sk-...';
-		printf(
-			'<input type="text" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="%2$s" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off" class="regular-text" placeholder="%3$s" />',
-			esc_attr( self::OPTION_NAME ),
-			esc_attr( $stored ),
-			esc_attr( $placeholder )
-		);
-		$show_label = __( 'Show', 'ask-adam-doc-it' );
-		$hide_label = __( 'Hide', 'ask-adam-doc-it' );
-		printf(
-			' <button type="button" class="button button-secondary aadi-toggle-key-visibility" aria-controls="aadi_openai_api_key" data-show="%1$s" data-hide="%2$s">%3$s</button>',
-			esc_attr( $show_label ),
-			esc_attr( $hide_label ),
-			esc_html( $show_label )
-		);
-		if ( '' !== $masked ) {
-			echo '<p class="description">' . esc_html(
-				sprintf(
-					/* translators: %s: masked API key suffix. */
-					__( 'A key is currently stored (ends in %s). Leave blank and save to keep it; replace to update.', 'ask-adam-doc-it' ),
-					$masked
-				)
-			) . '</p>';
-		} else {
-			echo '<p class="description">' . esc_html__( 'Paste a key beginning with "sk-". Stored base64-obfuscated; use a wp-config constant for real secrecy.', 'ask-adam-doc-it' ) . '</p>';
-		}
-	}
-
-	public function render_field_ai_enabled_override() {
-		$value = (bool) self::get_option( 'ai_enabled_override', true );
-		printf(
-			'<label><input type="checkbox" name="%1$s[ai_enabled_override]" value="1" %2$s /> %3$s</label>',
-			esc_attr( self::OPTION_NAME ),
-			checked( $value, true, false ),
-			esc_html__( 'AI features active when an API key is present', 'ask-adam-doc-it' )
-		);
-		echo '<p class="description">' . esc_html__( 'Uncheck to disable AI even if an API key is stored.', 'ask-adam-doc-it' ) . '</p>';
-	}
-
 	public function render_field_summarize_enabled() {
 		$value = (bool) self::get_option( 'summarize_enabled', false );
 		printf(
@@ -321,46 +259,6 @@ class AADI_Settings {
 	}
 
 	/**
-	 * Sanitize the OpenAI API key for standalone use.
-	 *
-	 * Returns the cleaned plaintext key (the form sanitizer applies
-	 * base64 wrapping separately). Empty string if invalid.
-	 *
-	 * @param string $value Raw API key.
-	 * @return string
-	 */
-	public function sanitize_api_key( $value ) {
-		if ( ! is_string( $value ) ) {
-			return '';
-		}
-
-		$value = trim( sanitize_text_field( $value ) );
-
-		if ( '' === $value ) {
-			return '';
-		}
-
-		$valid_prefixes   = array( 'sk-', 'sk-proj-', 'sk-ant-' );
-		$has_valid_prefix = false;
-		foreach ( $valid_prefixes as $prefix ) {
-			if ( 0 === strpos( $value, $prefix ) ) {
-				$has_valid_prefix = true;
-				break;
-			}
-		}
-
-		if ( ! $has_valid_prefix ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Ask Adam Doc It: rejected API key (missing supported prefix).' );
-			}
-			return '';
-		}
-
-		return $value;
-	}
-
-	/**
 	 * Sanitize the full settings array submitted from the form.
 	 *
 	 * @param mixed $input Raw input.
@@ -375,47 +273,7 @@ class AADI_Settings {
 			return $defaults;
 		}
 
-		// API key — sanitize, then base64-encode for storage.
-		// An empty submission means "keep the existing key" so admins can
-		// re-save other settings without re-entering the key each time.
-		$key_accepted = false;
-		if ( array_key_exists( 'openai_api_key', $input ) ) {
-			$raw_input = (string) $input['openai_api_key'];
-			$existing  = get_option( self::OPTION_NAME, array() );
-			$old_key   = is_array( $existing ) && isset( $existing['openai_api_key'] ) ? $existing['openai_api_key'] : '';
-
-			if ( '' === trim( $raw_input ) ) {
-				$sanitized['openai_api_key'] = $old_key;
-			} else {
-				// Idempotency guard — WordPress runs this sanitize callback
-				// twice when the option is first created (update_option falls
-				// through to add_option, both call sanitize_option). On the
-				// second pass $raw_input is our own base64 output from pass one.
-				// A real plaintext key always contains '-' which is not in the
-				// strict base64 alphabet, so if strict base64_decode() succeeds
-				// AND the decoded value passes sanitize_api_key(), the input is
-				// already-encoded — pass it through unchanged.
-				$maybe_decoded = base64_decode( $raw_input, true );
-				if ( false !== $maybe_decoded && '' !== $this->sanitize_api_key( $maybe_decoded ) ) {
-					// Second pass — value is already base64-encoded. Keep as-is.
-					$sanitized['openai_api_key'] = $raw_input;
-					$key_accepted                = true;
-				} else {
-					// First pass — value is plaintext. Sanitize and encode.
-					$plain = $this->sanitize_api_key( $raw_input );
-					if ( '' === $plain ) {
-						add_settings_error( self::OPTION_NAME, 'aadi_bad_api_key', __( 'The OpenAI API key was not saved. Keys must begin with "sk-" or "sk-proj-".', 'ask-adam-doc-it' ) );
-						$sanitized['openai_api_key'] = $old_key;
-					} else {
-						$sanitized['openai_api_key'] = base64_encode( $plain );
-						$key_accepted                = true;
-					}
-				}
-			}
-		}
-
 		// Booleans (checkbox unchecked = not present in $input).
-		$sanitized['ai_enabled_override'] = ! empty( $input['ai_enabled_override'] );
 		$sanitized['summarize_enabled']   = ! empty( $input['summarize_enabled'] );
 		$sanitized['delete_on_uninstall'] = ! empty( $input['delete_on_uninstall'] );
 
@@ -439,15 +297,6 @@ class AADI_Settings {
 			add_settings_error( self::OPTION_NAME, 'aadi_empty_roles', __( 'At least one role must be allowed. Reset to administrator only.', 'ask-adam-doc-it' ), 'updated' );
 		}
 		$sanitized['allowed_roles'] = array_values( array_unique( $roles ) );
-
-		// Clear the circuit breaker only when the admin explicitly submitted
-		// a key that passed sanitization. Re-pasting the same valid key counts
-		// as intent to retry, but unrelated settings saves (which preserve the
-		// stored key) and rejected replacements must not reset the breaker —
-		// otherwise a known-bad key would be retried on every save.
-		if ( $key_accepted ) {
-			delete_option( 'aadi_openai_auth_failed' );
-		}
 
 		return $sanitized;
 	}
@@ -512,8 +361,6 @@ class AADI_Settings {
 	/**
 	 * Get a single option value.
 	 *
-	 * Transparently base64-decodes the OpenAI API key.
-	 *
 	 * @param string $key            Setting key.
 	 * @param mixed  $default_value  Default if not set.
 	 * @return mixed
@@ -522,27 +369,6 @@ class AADI_Settings {
 		$settings = get_option( self::OPTION_NAME, array() );
 		if ( ! is_array( $settings ) ) {
 			$settings = array();
-		}
-
-		if ( 'openai_api_key' === $key ) {
-			if ( empty( $settings['openai_api_key'] ) ) {
-				return null === $default_value ? '' : $default_value;
-			}
-			$stored = (string) $settings['openai_api_key'];
-
-			// Strict base64 decode. If the stored value isn't valid base64,
-			// fall back to returning it as-is — most likely a legacy
-			// plaintext key from before obfuscation was introduced. This
-			// preserves the admin's data rather than silently losing it.
-			$decoded = base64_decode( $stored, true );
-			if ( false === $decoded ) {
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( 'Ask Adam Doc It: stored OpenAI API key is not base64-encoded; treating as legacy plaintext. Re-save the key to obfuscate it.' );
-				}
-				return $stored;
-			}
-			return $decoded;
 		}
 
 		if ( array_key_exists( $key, $settings ) ) {
@@ -560,20 +386,38 @@ class AADI_Settings {
 	/**
 	 * Whether AI features should be considered active.
 	 *
+	 * Delegates to the WordPress 7.0 built-in AI Client: AI is available
+	 * when wp_ai_client_prompt() exists and a connected provider supports
+	 * text generation. No plugin-stored API key is involved.
+	 *
 	 * @return bool
 	 */
 	public static function is_ai_enabled() {
-		$key = (string) self::get_option( 'openai_api_key', '' );
-		if ( '' === $key ) {
-			return false;
+		// Memoized per request — this is queried from list-table row actions,
+		// admin notices, save hooks, and the search path, so probing the AI
+		// Client on every call would be wasteful.
+		static $enabled = null;
+		if ( null !== $enabled ) {
+			return $enabled;
 		}
 
-		$override = self::get_option( 'ai_enabled_override', true );
-		if ( false === $override ) {
-			return false;
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			$enabled = false;
+			return $enabled;
 		}
 
-		return true;
+		// wp_ai_client_prompt() may return a WP_Error (or otherwise fail to
+		// build a prompt) if the AI Client cannot initialize. Guard before
+		// calling methods on the result so a misconfigured client degrades
+		// gracefully instead of fataling.
+		$prompt = wp_ai_client_prompt( 'test' );
+		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			$enabled = false;
+			return $enabled;
+		}
+
+		$enabled = (bool) $prompt->is_supported_for_text_generation();
+		return $enabled;
 	}
 
 	/**
@@ -584,11 +428,6 @@ class AADI_Settings {
 	 * @return bool
 	 */
 	public static function is_summarize_enabled() {
-		// Hide the button when the OpenAI auth circuit breaker is tripped —
-		// every click would fail until a working key is saved.
-		if ( get_option( 'aadi_openai_auth_failed' ) ) {
-			return false;
-		}
 		return self::is_ai_enabled() && (bool) self::get_option( 'summarize_enabled', false );
 	}
 

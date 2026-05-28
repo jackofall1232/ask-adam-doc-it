@@ -81,6 +81,9 @@ $aadi_options = array(
 	'aadi_activated_at',
 	'aadi_flush_rewrite',
 	'aadi_delete_data_on_uninstall',
+	// Legacy circuit-breaker flag from <= 1.1.x. The option is no longer
+	// written as of 1.2.0, but sites upgrading from an older version may
+	// still have a stale row, so clean it up on uninstall.
 	'aadi_openai_auth_failed',
 	'aadi_rewrite_version',
 );

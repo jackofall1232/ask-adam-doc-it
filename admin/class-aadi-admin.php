@@ -201,7 +201,7 @@ class AADI_Admin {
 		</div>
 		<?php if ( ! $ai_on ) : ?>
 			<p class="aadi-ai-disabled-notice">
-				<?php esc_html_e( 'Add your OpenAI API key in Settings to enable AI search.', 'ask-adam-doc-it' ); ?>
+				<?php esc_html_e( 'Configure an AI provider under Settings → Connectors to enable AI search.', 'ask-adam-doc-it' ); ?>
 			</p>
 		<?php endif; ?>
 		<?php
@@ -795,11 +795,11 @@ class AADI_Admin {
 						<p><?php
 						printf(
 							wp_kses(
-								/* translators: %s: settings tab link */
-								__( 'Add your OpenAI API key in the <a href="%s">AI Configuration tab</a>. The plugin works fully without it using keyword search.', 'ask-adam-doc-it' ),
+								/* translators: %s: Connectors settings URL */
+								__( 'AI features use the WordPress 7.0 built-in AI Client. Install an AI provider plugin and configure it under <a href="%s">Settings → Connectors</a>. The plugin works fully without it using keyword search.', 'ask-adam-doc-it' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
-							esc_url( admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG ) )
+							esc_url( admin_url( 'options-general.php?page=connectors' ) )
 						);
 						?></p>
 					</li>
@@ -1090,7 +1090,7 @@ class AADI_Admin {
 			if ( $failed > 0 ) {
 				$message .= ' ' . sprintf(
 					/* translators: %d: failed count */
-					__( '%d failed — check your OpenAI API key.', 'ask-adam-doc-it' ),
+					__( '%d failed — check your AI provider configuration under Settings → Connectors.', 'ask-adam-doc-it' ),
 					$failed
 				);
 			}
@@ -1102,9 +1102,6 @@ class AADI_Admin {
 				esc_html( $message )
 			);
 		}
-
-		$settings     = new AADI_Settings();
-		$settings_url = admin_url( 'edit.php?post_type=' . AADI_CPT . '&page=' . self::SETTINGS_PAGE_SLUG );
 
 		// Regeneration result feedback (must precede other notices).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1121,63 +1118,42 @@ class AADI_Admin {
 				'<div class="notice notice-error is-dismissible"><p>%s</p></div>',
 				wp_kses(
 					sprintf(
-						/* translators: %s: settings page URL */
+						/* translators: %s: Connectors settings URL */
 						__(
-							'Embedding regeneration failed. <a href="%s">Check your OpenAI API key in Settings</a>.',
+							'Embedding regeneration failed. <a href="%s">Check your AI provider configuration under Settings → Connectors</a>.',
 							'ask-adam-doc-it'
 						),
-						esc_url( $settings_url )
+						esc_url( admin_url( 'options-general.php?page=connectors' ) )
 					),
 					array( 'a' => array( 'href' => array() ) )
 				)
 			);
 		}
 
-		// State 1 — circuit breaker.
-		if ( get_option( 'aadi_openai_auth_failed' ) ) {
-			?>
-			<div class="notice notice-error">
-				<p>
-					<?php
-					printf(
-						wp_kses(
-							/* translators: %s: settings page URL */
-							__(
-								'Ask Adam Doc It: Your OpenAI API key was rejected (401). AI search is disabled. <a href="%s">Update your API key</a> to re-enable.',
-								'ask-adam-doc-it'
-							),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						esc_url( $settings_url )
-					);
-					?>
-				</p>
-			</div>
-			<?php
+		// State 1 — WordPress < 7.0 or AI Client not available.
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			echo '<div class="notice notice-info"><p>' . wp_kses(
+				sprintf(
+					/* translators: %s: plugin URL */
+					__( 'Ask Adam Doc It AI features require WordPress 7.0 or higher with an AI provider configured. <a href="%s">Learn more</a>.', 'ask-adam-doc-it' ),
+					esc_url( 'https://wordpress.org/plugins/ai-provider-for-openai/' )
+				),
+				array( 'a' => array( 'href' => array() ) )
+			) . '</p></div>';
 			return;
 		}
 
-		// State 2 — no key / AI disabled.
-		if ( ! $settings->is_ai_enabled() ) {
-			?>
-			<div class="notice notice-info">
-				<p>
-					<?php
-					printf(
-						wp_kses(
-							/* translators: %s: settings page URL */
-							__(
-								'Ask Adam Doc It is running in basic search mode. <a href="%s">Add your OpenAI API key</a> to enable AI-powered semantic search.',
-								'ask-adam-doc-it'
-							),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						esc_url( $settings_url )
-					);
-					?>
-				</p>
-			</div>
-			<?php
+		// State 2 — AI Client present but no provider configured. Reuse the
+		// defensively-guarded helper rather than chaining on the prompt here.
+		if ( ! AADI_Settings::is_ai_enabled() ) {
+			echo '<div class="notice notice-info"><p>' . wp_kses(
+				sprintf(
+					/* translators: %s: connectors settings URL */
+					__( 'AI features are not yet configured. Install an AI provider plugin and configure it under <a href="%s">Settings → Connectors</a>.', 'ask-adam-doc-it' ),
+					esc_url( admin_url( 'options-general.php?page=connectors' ) )
+				),
+				array( 'a' => array( 'href' => array() ) )
+			) . '</p></div>';
 			return;
 		}
 
