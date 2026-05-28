@@ -153,7 +153,7 @@ class AADI_Admin {
 
 		add_meta_box(
 			'aadi_doc_summary_box',
-			__( 'AI Search Summary', 'ask-adam-doc-it' ),
+			__( 'Document Summary', 'ask-adam-doc-it' ),
 			array( $this, 'render_doc_summary_meta_box' ),
 			AADI_CPT,
 			'normal',
@@ -184,7 +184,7 @@ class AADI_Admin {
 		wp_nonce_field( 'aadi_save_doc_summary', 'aadi_doc_summary_nonce' );
 		?>
 		<p class="aadi-meta-description">
-			<?php esc_html_e( 'Used by AI search to understand this document. Write 1-3 sentences describing the content, date, and topic. The more specific, the better the search results.', 'ask-adam-doc-it' ); ?>
+			<?php esc_html_e( 'Optional. Write a brief description of this document. Used by AI search when enabled. If left blank, the AI Summarize button will read the attached file directly.', 'ask-adam-doc-it' ); ?>
 		</p>
 		<div class="aadi-doc-summary-wrap">
 			<textarea

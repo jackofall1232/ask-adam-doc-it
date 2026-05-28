@@ -93,7 +93,8 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 == Changelog ==
 
 = 1.2.1 =
-* Fixed: "Publishing failed. The response is not a valid JSON response." error in the block editor caused by stray output from the AI Client capability probe corrupting REST API responses. Output is now buffered and discarded around the probe in is_ai_enabled().
+* Fixed: Block editor "Publishing failed" error caused by AI Client initialization running during REST API requests.
+* Fixed: Document Summary meta box label and description updated to reflect that manual input is optional — the AI Summarize button reads the attached file directly.
 
 = 1.2.0 =
 * Changed: Migrated to WordPress 7.0 built-in AI Client. AI features now use wp_ai_client_prompt() — no API key configuration needed in plugin settings. Install and configure an AI provider plugin (such as AI Provider for OpenAI) under Settings → Connectors.
