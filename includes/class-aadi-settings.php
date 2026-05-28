@@ -369,6 +369,7 @@ class AADI_Settings {
 		// API key — sanitize, then base64-encode for storage.
 		// An empty submission means "keep the existing key" so admins can
 		// re-save other settings without re-entering the key each time.
+		$key_accepted = false;
 		if ( array_key_exists( 'openai_api_key', $input ) ) {
 			$raw_input = (string) $input['openai_api_key'];
 			$existing  = get_option( self::OPTION_NAME, array() );
@@ -383,6 +384,7 @@ class AADI_Settings {
 					$sanitized['openai_api_key'] = $old_key;
 				} else {
 					$sanitized['openai_api_key'] = base64_encode( $plain );
+					$key_accepted                = true;
 				}
 			}
 		}
@@ -413,10 +415,12 @@ class AADI_Settings {
 		}
 		$sanitized['allowed_roles'] = array_values( array_unique( $roles ) );
 
-		// Clear the circuit breaker whenever a valid key is present
-		// after save — the admin submitting settings is explicit intent
-		// to retry the connection, regardless of whether the key changed.
-		if ( '' !== $sanitized['openai_api_key'] ) {
+		// Clear the circuit breaker only when the admin explicitly submitted
+		// a key that passed sanitization. Re-pasting the same valid key counts
+		// as intent to retry, but unrelated settings saves (which preserve the
+		// stored key) and rejected replacements must not reset the breaker —
+		// otherwise a known-bad key would be retried on every save.
+		if ( $key_accepted ) {
 			delete_option( 'aadi_openai_auth_failed' );
 		}
 
