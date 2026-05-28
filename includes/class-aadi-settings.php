@@ -550,6 +550,11 @@ class AADI_Settings {
 	 * @return bool
 	 */
 	public static function is_summarize_enabled() {
+		// Hide the button when the OpenAI auth circuit breaker is tripped —
+		// every click would fail until a working key is saved.
+		if ( get_option( 'aadi_openai_auth_failed' ) ) {
+			return false;
+		}
 		return self::is_ai_enabled() && (bool) self::get_option( 'summarize_enabled', false );
 	}
 

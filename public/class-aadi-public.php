@@ -374,10 +374,24 @@ class AADI_Public {
 			wp_send_json_error( array( 'message' => __( 'Document not found.', 'ask-adam-doc-it' ) ) );
 		}
 
+		// Password-protected documents must not leak their contents (title,
+		// excerpt, admin summary) to anonymous visitors via a summary.
+		if ( '' !== (string) $post->post_password ) {
+			wp_send_json_error( array( 'message' => __( 'Protected documents cannot be summarized.', 'ask-adam-doc-it' ) ) );
+		}
+
 		// Assemble source material: title + admin summary meta + excerpt.
 		$title   = wp_strip_all_tags( get_the_title( $post ) );
 		$meta    = wp_strip_all_tags( (string) get_post_meta( $post_id, '_aadi_doc_summary', true ) );
 		$excerpt = wp_strip_all_tags( get_the_excerpt( $post ) );
+
+		// Require substantive source beyond the title. Summarizing a
+		// title/filename alone wastes the API budget and yields a summary that
+		// describes nothing the user can't already see on the card.
+		$has_substance = '' !== trim( $meta ) || '' !== trim( $excerpt );
+		if ( ! $has_substance ) {
+			wp_send_json_error( array( 'message' => __( 'There is not enough information to summarize this document.', 'ask-adam-doc-it' ) ) );
+		}
 
 		$source_parts = array();
 		if ( '' !== trim( $title ) ) {
@@ -390,14 +404,10 @@ class AADI_Public {
 			$source_parts[] = 'Excerpt: ' . $excerpt;
 		}
 
-		if ( empty( $source_parts ) ) {
-			wp_send_json_error( array( 'message' => __( 'There is not enough information to summarize this document.', 'ask-adam-doc-it' ) ) );
-		}
-
 		$source = implode( "\n", $source_parts );
 
 		// Serve from cache if available — no rate-limit consumed.
-		$cache_key = 'aadi_sum_' . $post_id . '_' . substr( md5( $source ), 0, 8 );
+		$cache_key = 'aadi_sum_' . $post_id . '_' . substr( md5( $source ), 0, 16 );
 		$cached    = get_transient( $cache_key );
 		if ( is_string( $cached ) && '' !== $cached ) {
 			wp_send_json_success(
@@ -406,6 +416,14 @@ class AADI_Public {
 					'cached'  => true,
 				)
 			);
+		}
+
+		// Don't spend the rate-limit budget on a request that cannot succeed:
+		// is_configured() covers a missing/invalid key and a tripped auth
+		// circuit breaker.
+		$openai = new AADI_OpenAI( AADI_Settings::get_option( 'openai_api_key', '' ) );
+		if ( ! $openai->is_configured() ) {
+			wp_send_json_error( array( 'message' => __( 'The summary service is currently unavailable.', 'ask-adam-doc-it' ) ) );
 		}
 
 		// Fresh generation — throttle to protect the API budget.
@@ -424,7 +442,6 @@ class AADI_Public {
 			),
 		);
 
-		$openai  = new AADI_OpenAI( AADI_Settings::get_option( 'openai_api_key', '' ) );
 		$summary = $openai->chat_completion( $messages, AADI_OpenAI::CHAT_MODEL_SNAPSHOT, 150 );
 
 		if ( false === $summary || '' === trim( (string) $summary ) ) {
