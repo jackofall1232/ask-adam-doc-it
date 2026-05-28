@@ -4,7 +4,7 @@ Tags: document library, file manager, AI search, PDF, AI Client
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 3. The frontend document library shortcode output with search and AI-mode results.
 
 == Changelog ==
+
+= 1.2.2 =
+* Fixed: Embeddings now retrieve the OpenAI API key from the WordPress 7.0 Connectors API (connectors_ai_openai_api_key option) automatically. Documents will generate embeddings as long as the AI Provider for OpenAI plugin is configured under Settings → Connectors — no manual key entry needed.
 
 = 1.2.1 =
 * Fixed: Block editor "Publishing failed" error caused by AI Client initialization running during REST API requests.

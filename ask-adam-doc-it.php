@@ -3,7 +3,7 @@
  * Plugin Name:       Ask Adam Doc It
  * Plugin URI:        https://github.com/jackofall1232/ask-adam-doc-it
  * Description:       AI-powered document library for WordPress. Upload, organize, and semantically search files using the WordPress 7.0 built-in AI Client.
- * Version:           1.2.1
+ * Version:           1.2.2
  * Requires at least: 7.0
  * Requires PHP:      7.4
  * Author:            Ask Adam
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants.
  */
-define( 'AADI_VERSION', '1.2.1' );
+define( 'AADI_VERSION', '1.2.2' );
 define( 'AADI_PLUGIN_FILE', __FILE__ );
 define( 'AADI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AADI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
