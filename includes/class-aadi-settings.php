@@ -387,13 +387,29 @@ class AADI_Settings {
 			if ( '' === trim( $raw_input ) ) {
 				$sanitized['openai_api_key'] = $old_key;
 			} else {
-				$plain = $this->sanitize_api_key( $raw_input );
-				if ( '' === $plain ) {
-					add_settings_error( self::OPTION_NAME, 'aadi_bad_api_key', __( 'The OpenAI API key was not saved. Keys must begin with "sk-" or "sk-proj-".', 'ask-adam-doc-it' ) );
-					$sanitized['openai_api_key'] = $old_key;
-				} else {
-					$sanitized['openai_api_key'] = base64_encode( $plain );
+				// Idempotency guard — WordPress runs this sanitize callback
+				// twice when the option is first created (update_option falls
+				// through to add_option, both call sanitize_option). On the
+				// second pass $raw_input is our own base64 output from pass one.
+				// A real plaintext key always contains '-' which is not in the
+				// strict base64 alphabet, so if strict base64_decode() succeeds
+				// AND the decoded value passes sanitize_api_key(), the input is
+				// already-encoded — pass it through unchanged.
+				$maybe_decoded = base64_decode( $raw_input, true );
+				if ( false !== $maybe_decoded && '' !== $this->sanitize_api_key( $maybe_decoded ) ) {
+					// Second pass — value is already base64-encoded. Keep as-is.
+					$sanitized['openai_api_key'] = $raw_input;
 					$key_accepted                = true;
+				} else {
+					// First pass — value is plaintext. Sanitize and encode.
+					$plain = $this->sanitize_api_key( $raw_input );
+					if ( '' === $plain ) {
+						add_settings_error( self::OPTION_NAME, 'aadi_bad_api_key', __( 'The OpenAI API key was not saved. Keys must begin with "sk-" or "sk-proj-".', 'ask-adam-doc-it' ) );
+						$sanitized['openai_api_key'] = $old_key;
+					} else {
+						$sanitized['openai_api_key'] = base64_encode( $plain );
+						$key_accepted                = true;
+					}
 				}
 			}
 		}
