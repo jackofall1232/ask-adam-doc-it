@@ -4,7 +4,7 @@ Tags: document library, file manager, AI search, PDF, AI Client
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,6 +92,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixed: "Publishing failed. The response is not a valid JSON response." error in the block editor caused by stray output from the AI Client capability probe corrupting REST API responses. Output is now buffered and discarded around the probe in is_ai_enabled().
+
 = 1.2.0 =
 * Changed: Migrated to WordPress 7.0 built-in AI Client. AI features now use wp_ai_client_prompt() — no API key configuration needed in plugin settings. Install and configure an AI provider plugin (such as AI Provider for OpenAI) under Settings → Connectors.
 * Removed: OpenAI API key field from plugin settings.
@@ -118,6 +121,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 * Opt-in clean uninstall.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Fixes a "Publishing failed" JSON error in the block editor when an AI provider is connected. Recommended for all 1.2.0 users.
 
 = 1.2.0 =
 Requires WordPress 7.0. AI features now use the built-in AI Client — remove your old API key worries and configure an AI provider under Settings → Connectors instead.
