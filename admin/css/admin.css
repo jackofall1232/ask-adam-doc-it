@@ -122,10 +122,9 @@
 
 .aadi-admin-hero__logo {
     display: block;
-    width: 100%;
-    max-width: 340px;
-    height: auto;
-    max-height: 110px;
+    width: auto;
+    max-width: 280px;
+    height: 48px;
     object-fit: contain;
     object-position: left center;
 }
