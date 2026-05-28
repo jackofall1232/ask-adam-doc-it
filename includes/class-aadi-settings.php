@@ -203,8 +203,9 @@ class AADI_Settings {
 		// empty submission as "keep the existing key".
 		$placeholder = '' !== $stored ? '••••••••••••' : 'sk-...';
 		printf(
-			'<input type="password" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off" class="regular-text" placeholder="%2$s" />',
+			'<input type="text" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="%2$s" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off" class="regular-text" placeholder="%3$s" />',
 			esc_attr( self::OPTION_NAME ),
+			esc_attr( $stored ),
 			esc_attr( $placeholder )
 		);
 		$show_label = __( 'Show', 'ask-adam-doc-it' );
