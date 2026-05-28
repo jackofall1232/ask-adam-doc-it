@@ -203,10 +203,32 @@ class AADI_Settings {
 		// empty submission as "keep the existing key".
 		$placeholder = '' !== $stored ? '••••••••••••' : 'sk-...';
 		printf(
-			'<input type="text" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="" autocomplete="off" spellcheck="false" class="regular-text" placeholder="%2$s" />',
+			'<input type="password" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off" class="regular-text" placeholder="%2$s" />',
 			esc_attr( self::OPTION_NAME ),
 			esc_attr( $placeholder )
 		);
+		printf(
+			' <button type="button" class="button button-secondary" id="aadi_toggle_api_key" aria-controls="aadi_openai_api_key" aria-pressed="false" data-show-label="%1$s" data-hide-label="%2$s">%1$s</button>',
+			esc_attr__( 'Show', 'ask-adam-doc-it' ),
+			esc_attr__( 'Hide', 'ask-adam-doc-it' )
+		);
+		?>
+		<script>
+		( function () {
+			var toggle = document.getElementById( 'aadi_toggle_api_key' );
+			var field  = document.getElementById( 'aadi_openai_api_key' );
+			if ( ! toggle || ! field ) {
+				return;
+			}
+			toggle.addEventListener( 'click', function () {
+				var show = 'password' === field.getAttribute( 'type' );
+				field.setAttribute( 'type', show ? 'text' : 'password' );
+				toggle.setAttribute( 'aria-pressed', show ? 'true' : 'false' );
+				toggle.textContent = show ? toggle.getAttribute( 'data-hide-label' ) : toggle.getAttribute( 'data-show-label' );
+			} );
+		}() );
+		</script>
+		<?php
 		if ( '' !== $masked ) {
 			echo '<p class="description">' . esc_html(
 				sprintf(
