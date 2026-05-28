@@ -230,6 +230,59 @@
 	color: #5b21b6;
 }
 
+.aadi-single__summarize {
+	margin: 1.25em 0 0;
+}
+
+/* 6b. Summarize button + AI summary output
+   ----------------------------------------------------------- */
+.aadi-summarize-btn {
+	display: inline-block;
+	margin: 6px 0 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #5b21b6;
+	font-size: 0.875em;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.aadi-summarize-btn:hover,
+.aadi-summarize-btn:focus {
+	text-decoration: underline;
+}
+
+.aadi-summarize-btn:disabled {
+	opacity: 0.6;
+	cursor: default;
+	text-decoration: none;
+}
+
+.aadi-summary-output {
+	margin-top: 8px;
+	padding: 10px 12px;
+	border-left: 3px solid #c4b5fd;
+	background: #f5f3ff;
+	font-size: 0.9em;
+	color: #4b5563;
+}
+
+.aadi-summary-output:empty {
+	display: none;
+}
+
+.aadi-summary-output.is-loading {
+	color: #6b7280;
+	font-style: italic;
+}
+
+.aadi-summary-output.is-error {
+	border-left-color: #fca5a5;
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
 /* 7. Badges and indicators
    ----------------------------------------------------------- */
 .aadi-mode-indicator {

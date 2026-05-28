@@ -52,6 +52,7 @@ class AADI_Settings {
 		return array(
 			'openai_api_key'      => '',
 			'ai_enabled_override' => true,
+			'summarize_enabled'   => false,
 			'max_image_size'      => 5,
 			'max_video_size'      => 50,
 			'max_audio_size'      => 20,
@@ -123,6 +124,13 @@ class AADI_Settings {
 			'ai_enabled_override',
 			__( 'Enable AI Features', 'ask-adam-doc-it' ),
 			array( $this, 'render_field_ai_enabled_override' ),
+			self::PAGE_SLUG,
+			'aadi_section_ai'
+		);
+		add_settings_field(
+			'summarize_enabled',
+			__( 'Document Summarize Button', 'ask-adam-doc-it' ),
+			array( $this, 'render_field_summarize_enabled' ),
 			self::PAGE_SLUG,
 			'aadi_section_ai'
 		);
@@ -221,6 +229,17 @@ class AADI_Settings {
 			esc_html__( 'AI features active when an API key is present', 'ask-adam-doc-it' )
 		);
 		echo '<p class="description">' . esc_html__( 'Uncheck to disable AI even if an API key is stored.', 'ask-adam-doc-it' ) . '</p>';
+	}
+
+	public function render_field_summarize_enabled() {
+		$value = (bool) self::get_option( 'summarize_enabled', false );
+		printf(
+			'<label><input type="checkbox" name="%1$s[summarize_enabled]" value="1" %2$s /> %3$s</label>',
+			esc_attr( self::OPTION_NAME ),
+			checked( $value, true, false ),
+			esc_html__( 'Show a "Summarize" button on document cards and single document pages', 'ask-adam-doc-it' )
+		);
+		echo '<p class="description">' . esc_html__( 'Generates a short AI summary on demand. Only active when AI features are enabled above.', 'ask-adam-doc-it' ) . '</p>';
 	}
 
 	public function render_field_max_image_size() {
@@ -365,6 +384,7 @@ class AADI_Settings {
 
 		// Booleans (checkbox unchecked = not present in $input).
 		$sanitized['ai_enabled_override'] = ! empty( $input['ai_enabled_override'] );
+		$sanitized['summarize_enabled']   = ! empty( $input['summarize_enabled'] );
 		$sanitized['delete_on_uninstall'] = ! empty( $input['delete_on_uninstall'] );
 
 		// Integer size limits with bounds.
@@ -520,6 +540,17 @@ class AADI_Settings {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the on-demand document Summarize button should be available.
+	 *
+	 * Requires AI to be active AND the admin to have opted in.
+	 *
+	 * @return bool
+	 */
+	public static function is_summarize_enabled() {
+		return self::is_ai_enabled() && (bool) self::get_option( 'summarize_enabled', false );
 	}
 
 	/**

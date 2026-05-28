@@ -89,6 +89,15 @@ get_header();
 				</p>
 			<?php endif; ?>
 
+			<?php if ( AADI_Settings::is_summarize_enabled() ) : ?>
+				<div class="aadi-single__summarize">
+					<button type="button" class="aadi-summarize-btn" data-post-id="<?php echo esc_attr( $aadi_post_id ); ?>">
+						<?php esc_html_e( 'Summarize', 'ask-adam-doc-it' ); ?>
+					</button>
+					<div class="aadi-summary-output" aria-live="polite"></div>
+				</div>
+			<?php endif; ?>
+
 			<div class="aadi-single__content">
 				<?php the_content(); ?>
 			</div>

@@ -190,6 +190,10 @@ class AADI_Loader {
 		add_action( 'wp_ajax_aadi_search', array( $this->public_handler, 'handle_search_ajax' ) );
 		add_action( 'wp_ajax_nopriv_aadi_search', array( $this->public_handler, 'handle_search_ajax' ) );
 
+		// Document summarize — logged-in and logged-out visitors.
+		add_action( 'wp_ajax_aadi_summarize', array( $this->public_handler, 'handle_summarize_ajax' ) );
+		add_action( 'wp_ajax_nopriv_aadi_summarize', array( $this->public_handler, 'handle_summarize_ajax' ) );
+
 		// Admin dismiss-notice AJAX — only when the admin object exists.
 		if ( isset( $this->admin ) ) {
 			add_action( 'wp_ajax_aadi_dismiss_ai_notice', array( $this->admin, 'handle_dismiss_ai_notice' ) );
