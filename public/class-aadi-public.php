@@ -446,7 +446,19 @@ class AADI_Public {
 			wp_die();
 		}
 
-		$result = wp_ai_client_prompt()
+		// wp_ai_client_prompt() may return a WP_Error if the AI Client cannot
+		// initialize. Assign and guard before chaining so a misconfigured
+		// client returns a clean error instead of fataling the request.
+		$prompt = wp_ai_client_prompt();
+		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			if ( is_wp_error( $prompt ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $prompt->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		$result = $prompt
 			->with_file(
 				new \WordPress\AiClient\Files\DTO\File(
 					$file_contents,
@@ -470,6 +482,13 @@ class AADI_Public {
 		}
 
 		$summary = sanitize_text_field( $result );
+
+		// Some providers can return an empty string without a WP_Error. Don't
+		// cache or surface a blank summary as a success.
+		if ( '' === trim( $summary ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not generate a summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
 
 		set_transient( $cache_key, $summary, WEEK_IN_SECONDS );
 
