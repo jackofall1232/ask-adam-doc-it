@@ -88,6 +88,13 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 
 == Changelog ==
 
+= 1.1.0 =
+* New: Optional AI Summarize button on document cards and single document pages. When enabled in Settings, visitors can request a plain-English 2-3 sentence summary of any document on demand before downloading.
+* Summaries are generated via OpenAI GPT and cached for one week per document — repeat clicks serve instantly from cache with no additional API cost.
+* Rate limited to 30 fresh generations per hour site-wide to prevent API abuse.
+* Button hidden automatically when AI is disabled or the OpenAI circuit breaker is tripped.
+* Password-protected documents cannot be summarized by anonymous visitors.
+
 = 1.0.1 =
 * Branded admin UI with teal hero, tabbed settings, and help documentation tab.
 
@@ -102,6 +109,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 * Opt-in clean uninstall.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds optional AI document summarization. Enable it under Settings → AI Configuration after upgrading.
 
 = 1.0.1 =
 Refreshed admin settings page with branded teal hero, tabbed layout, and help tab.
