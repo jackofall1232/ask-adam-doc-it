@@ -328,15 +328,18 @@ class AADI_Embeddings {
 			return false;
 		}
 
-		// Try the Connectors API option first (WordPress 7.0+
-		// AI Provider for OpenAI plugin stores the key here).
+		// Try the Connectors API option first. The WordPress 7.0+ "AI
+		// Provider for OpenAI" plugin stores the credential in this option.
 		$api_key = (string) get_option( 'connectors_ai_openai_api_key', '' );
 
 		// Allow override or alternative key sources via filter.
 		$api_key = (string) apply_filters( 'aadi_openai_api_key', $api_key );
 
 		if ( '' === $api_key ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// Throttle the warning so a misconfigured site doesn't flood the
+			// debug log during bulk saves or repeated frontend searches.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! get_transient( 'aadi_key_warning_logged' ) ) {
+				set_transient( 'aadi_key_warning_logged', 1, HOUR_IN_SECONDS );
 				error_log( 'Ask Adam Doc It [embeddings]: No OpenAI API key found. Install and configure the AI Provider for OpenAI plugin under Settings → Connectors.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return false;

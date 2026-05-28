@@ -126,6 +126,9 @@ Ask Adam Doc It is translation-ready. A .pot file is included in the languages/ 
 
 == Upgrade Notice ==
 
+= 1.2.2 =
+Embeddings now pick up the OpenAI API key automatically from the WordPress 7.0 Connectors API. If the AI Provider for OpenAI plugin is configured under Settings → Connectors, documents will generate embeddings with no manual key entry.
+
 = 1.2.1 =
 Fixes a "Publishing failed" JSON error in the block editor when an AI provider is connected. Recommended for all 1.2.0 users.
 
