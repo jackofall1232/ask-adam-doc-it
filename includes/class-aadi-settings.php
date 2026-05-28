@@ -331,10 +331,19 @@ class AADI_Settings {
 			return '';
 		}
 
-		if ( 0 !== strpos( $value, 'sk-' ) ) {
+		$valid_prefixes   = array( 'sk-', 'sk-proj-', 'sk-ant-' );
+		$has_valid_prefix = false;
+		foreach ( $valid_prefixes as $prefix ) {
+			if ( 0 === strpos( $value, $prefix ) ) {
+				$has_valid_prefix = true;
+				break;
+			}
+		}
+
+		if ( ! $has_valid_prefix ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Ask Adam Doc It: rejected API key (missing sk- prefix).' );
+				error_log( 'Ask Adam Doc It: rejected API key (missing supported prefix).' );
 			}
 			return '';
 		}
@@ -371,7 +380,7 @@ class AADI_Settings {
 			} else {
 				$plain = $this->sanitize_api_key( $raw_input );
 				if ( '' === $plain ) {
-					add_settings_error( self::OPTION_NAME, 'aadi_bad_api_key', __( 'The OpenAI API key was not saved. Keys must begin with "sk-".', 'ask-adam-doc-it' ) );
+					add_settings_error( self::OPTION_NAME, 'aadi_bad_api_key', __( 'The OpenAI API key was not saved. Keys must begin with "sk-" or "sk-proj-".', 'ask-adam-doc-it' ) );
 					$sanitized['openai_api_key'] = $old_key;
 				} else {
 					$sanitized['openai_api_key'] = base64_encode( $plain );

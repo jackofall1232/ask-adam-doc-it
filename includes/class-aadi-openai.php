@@ -59,7 +59,16 @@ class AADI_OpenAI {
 		if ( '' === $this->api_key ) {
 			return false;
 		}
-		if ( 0 !== strpos( $this->api_key, 'sk-' ) ) {
+		$valid_prefixes   = array( 'sk-', 'sk-proj-', 'sk-ant-' );
+		$has_valid_prefix = false;
+		foreach ( $valid_prefixes as $prefix ) {
+			if ( 0 === strpos( $this->api_key, $prefix ) ) {
+				$has_valid_prefix = true;
+				break;
+			}
+		}
+
+		if ( ! $has_valid_prefix ) {
 			return false;
 		}
 		if ( get_option( 'aadi_openai_auth_failed' ) ) {
