@@ -69,5 +69,11 @@ $aadi_card_label = '' !== $aadi_card_ext ? strtoupper( $aadi_card_ext ) : $aadi_
 				<?php esc_html_e( 'Download', 'ask-adam-doc-it' ); ?>
 			</a>
 		<?php endif; ?>
+		<?php if ( AADI_Settings::is_summarize_enabled() ) : ?>
+			<button type="button" class="aadi-summarize-btn" data-post-id="<?php echo esc_attr( $aadi_card_id ); ?>">
+				<?php esc_html_e( 'Summarize', 'ask-adam-doc-it' ); ?>
+			</button>
+			<div class="aadi-summary-output" aria-live="polite"></div>
+		<?php endif; ?>
 	</div>
 </li>
