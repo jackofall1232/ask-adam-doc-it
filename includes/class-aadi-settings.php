@@ -406,17 +406,26 @@ class AADI_Settings {
 			return $enabled;
 		}
 
+		// The AI Client probe can emit stray output (notices/warnings) that
+		// corrupts JSON responses during REST API requests (e.g. block editor
+		// saves), causing "Publishing failed. The response is not a valid JSON
+		// response." Buffer and discard any such output around the probe so the
+		// real capability result is preserved in every context.
+		ob_start();
+
 		// wp_ai_client_prompt() may return a WP_Error (or otherwise fail to
 		// build a prompt) if the AI Client cannot initialize. Guard before
 		// calling methods on the result so a misconfigured client degrades
 		// gracefully instead of fataling.
 		$prompt = wp_ai_client_prompt( 'test' );
 		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			ob_end_clean();
 			$enabled = false;
 			return $enabled;
 		}
 
 		$enabled = (bool) $prompt->is_supported_for_text_generation();
+		ob_end_clean();
 		return $enabled;
 	}
 
@@ -428,6 +437,11 @@ class AADI_Settings {
 	 * @return bool
 	 */
 	public static function is_summarize_enabled() {
+		// The summarize button should never render during REST requests anyway,
+		// and short-circuiting here avoids the AI Client probe in is_ai_enabled().
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return false;
+		}
 		return self::is_ai_enabled() && (bool) self::get_option( 'summarize_enabled', false );
 	}
 
