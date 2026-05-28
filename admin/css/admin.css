@@ -110,13 +110,34 @@
 
 .aadi-admin-hero__title {
     color: var(--aadi-white);
-    font-size: 22px;
     font-weight: 700;
-    line-height: 1.2;
     margin: 0 0 4px;
     padding: 0;
     /* Override WP's default h1 styles in .wrap */
     border: none;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.aadi-admin-hero__logo {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    max-height: 110px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.aadi-admin-hero__title-fallback {
+    display: none;
+}
+
+/* If image fails to load, the fallback span becomes visible */
+.aadi-admin-hero__title:not(:has(img)) .aadi-admin-hero__title-fallback,
+.aadi-admin-hero__logo[data-error] ~ .aadi-admin-hero__title-fallback {
+    display: inline;
 }
 
 .aadi-admin-hero__subtitle {

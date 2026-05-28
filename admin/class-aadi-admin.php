@@ -538,7 +538,14 @@ class AADI_Admin {
 					</div>
 					<div class="aadi-admin-hero__text">
 						<h1 class="aadi-admin-hero__title">
-							<?php esc_html_e( 'Ask Adam Doc It', 'ask-adam-doc-it' ); ?>
+							<img
+								src="<?php echo esc_url( AADI_PLUGIN_URL . 'assets/images/hero.webp' ); ?>"
+								alt="<?php esc_attr_e( 'Ask Adam Doc It', 'ask-adam-doc-it' ); ?>"
+								class="aadi-admin-hero__logo"
+							/>
+							<span class="aadi-admin-hero__title-fallback">
+								<?php esc_html_e( 'Ask Adam Doc It', 'ask-adam-doc-it' ); ?>
+							</span>
 						</h1>
 						<p class="aadi-admin-hero__subtitle">
 							<?php esc_html_e(
