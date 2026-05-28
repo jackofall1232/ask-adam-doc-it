@@ -18,19 +18,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// TEMPORARY DIAGNOSTIC — capture any stray output corrupting REST JSON responses.
-add_action(
-	'shutdown',
-	function () {
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			$output = ob_get_contents();
-			if ( ! empty( $output ) ) {
-				error_log( 'AADI REST output corruption: ' . substr( $output, 0, 500 ) );
-			}
-		}
-	}
-);
-
 /**
  * Plugin constants.
  */
