@@ -362,9 +362,19 @@ class AADI_Embeddings {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [embeddings]: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 			return false;
 		}
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $code ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// Embeddings run in a background cron job, so surfacing the
+				// failure detail in the log is the only troubleshooting hook.
+				error_log( 'Ask Adam Doc It [embeddings]: HTTP ' . $code . ' — ' . wp_remote_retrieve_body( $response ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 			return false;
 		}
 

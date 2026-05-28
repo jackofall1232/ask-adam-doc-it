@@ -428,7 +428,18 @@ class AADI_Public {
 			wp_send_json_error( array( 'message' => __( 'The summary service is busy right now. Please try again later.', 'ask-adam-doc-it' ) ) );
 		}
 
-		$result = wp_ai_client_prompt( $source )
+		// wp_ai_client_prompt() may return a WP_Error if the AI Client cannot
+		// initialize. Guard before chaining so a misconfigured client returns
+		// a clean error instead of a fatal.
+		$prompt = wp_ai_client_prompt( $source );
+		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			if ( is_wp_error( $prompt ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $prompt->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary.', 'ask-adam-doc-it' ) ) );
+		}
+
+		$result = $prompt
 			->using_system_instruction(
 				'You are a helpful assistant that writes concise, plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences. No preamble, no markdown, no bullet points.'
 			)
@@ -436,12 +447,10 @@ class AADI_Public {
 			->generate_text();
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Could not generate summary.', 'ask-adam-doc-it' ),
-				)
-			);
-			wp_die();
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $result->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary.', 'ask-adam-doc-it' ) ) );
 		}
 
 		$summary = sanitize_text_field( $result );

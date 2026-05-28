@@ -1143,8 +1143,9 @@ class AADI_Admin {
 			return;
 		}
 
-		// State 2 — AI Client present but no provider configured.
-		if ( ! wp_ai_client_prompt( 'test' )->is_supported_for_text_generation() ) {
+		// State 2 — AI Client present but no provider configured. Reuse the
+		// defensively-guarded helper rather than chaining on the prompt here.
+		if ( ! AADI_Settings::is_ai_enabled() ) {
 			echo '<div class="notice notice-info"><p>' . wp_kses(
 				sprintf(
 					/* translators: %s: connectors settings URL */

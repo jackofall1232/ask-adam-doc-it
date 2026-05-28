@@ -393,11 +393,31 @@ class AADI_Settings {
 	 * @return bool
 	 */
 	public static function is_ai_enabled() {
-		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
-			return false;
+		// Memoized per request — this is queried from list-table row actions,
+		// admin notices, save hooks, and the search path, so probing the AI
+		// Client on every call would be wasteful.
+		static $enabled = null;
+		if ( null !== $enabled ) {
+			return $enabled;
 		}
-		return wp_ai_client_prompt( 'test' )
-			->is_supported_for_text_generation();
+
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			$enabled = false;
+			return $enabled;
+		}
+
+		// wp_ai_client_prompt() may return a WP_Error (or otherwise fail to
+		// build a prompt) if the AI Client cannot initialize. Guard before
+		// calling methods on the result so a misconfigured client degrades
+		// gracefully instead of fataling.
+		$prompt = wp_ai_client_prompt( 'test' );
+		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			$enabled = false;
+			return $enabled;
+		}
+
+		$enabled = (bool) $prompt->is_supported_for_text_generation();
+		return $enabled;
 	}
 
 	/**

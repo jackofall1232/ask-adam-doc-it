@@ -44,6 +44,10 @@ When an AI provider is configured through the WordPress 7.0 AI Client (Settings 
 
 **This feature is entirely optional.** The plugin works fully without any AI provider using keyword search.
 
+**Summaries:** Sent to whichever AI provider you connect through the WordPress 7.0 AI Client (Settings → Connectors). The data-handling, privacy policy, and terms of that provider apply — review them for the connector you install (for example, AI Provider for OpenAI sends data to the OpenAI API).
+
+**Embeddings (semantic search):** When an OpenAI credential is available, document summary text and visitor search queries are sent to the OpenAI API.
+
 **Service:** OpenAI API (api.openai.com)
 **Privacy Policy:** [https://openai.com/privacy](https://openai.com/privacy)
 **Terms of Service:** [https://openai.com/terms](https://openai.com/terms)
