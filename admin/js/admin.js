@@ -209,4 +209,16 @@
 		}() );
 	} );
 
+	/* 5. API key Show/Hide toggle
+	--------------------------------------------------------- */
+	$( document ).on( 'click', '.aadi-toggle-key-visibility', function () {
+		var $btn   = $( this );
+		var $input = $( '#aadi_openai_api_key' );
+		var isPass = $input.attr( 'type' ) === 'password';
+		$input.attr( 'type', isPass ? 'text' : 'password' );
+		$btn.text( isPass
+			? $btn.data( 'hide' )
+			: $btn.data( 'show' ) );
+	} );
+
 } ( jQuery, window.aadiAdmin || {} ) );

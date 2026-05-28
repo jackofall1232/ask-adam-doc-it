@@ -203,9 +203,17 @@ class AADI_Settings {
 		// empty submission as "keep the existing key".
 		$placeholder = '' !== $stored ? '••••••••••••' : 'sk-...';
 		printf(
-			'<input type="password" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="" autocomplete="new-password" class="regular-text" placeholder="%2$s" />',
+			'<input type="password" id="aadi_openai_api_key" name="%1$s[openai_api_key]" value="" autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off" class="regular-text" placeholder="%2$s" />',
 			esc_attr( self::OPTION_NAME ),
 			esc_attr( $placeholder )
+		);
+		$show_label = __( 'Show', 'ask-adam-doc-it' );
+		$hide_label = __( 'Hide', 'ask-adam-doc-it' );
+		printf(
+			' <button type="button" class="button button-secondary aadi-toggle-key-visibility" aria-controls="aadi_openai_api_key" data-show="%1$s" data-hide="%2$s">%3$s</button>',
+			esc_attr( $show_label ),
+			esc_attr( $hide_label ),
+			esc_html( $show_label )
 		);
 		if ( '' !== $masked ) {
 			echo '<p class="description">' . esc_html(
