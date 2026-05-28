@@ -401,19 +401,17 @@ class AADI_Settings {
 			return $enabled;
 		}
 
-		// During REST API requests (e.g. block editor saves) the expensive AI
-		// Client probe below can emit output that corrupts the JSON response,
-		// causing "Publishing failed. The response is not a valid JSON
-		// response." Here we only need to know whether the function exists.
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			$enabled = function_exists( 'wp_ai_client_prompt' );
-			return $enabled;
-		}
-
 		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
 			$enabled = false;
 			return $enabled;
 		}
+
+		// The AI Client probe can emit stray output (notices/warnings) that
+		// corrupts JSON responses during REST API requests (e.g. block editor
+		// saves), causing "Publishing failed. The response is not a valid JSON
+		// response." Buffer and discard any such output around the probe so the
+		// real capability result is preserved in every context.
+		ob_start();
 
 		// wp_ai_client_prompt() may return a WP_Error (or otherwise fail to
 		// build a prompt) if the AI Client cannot initialize. Guard before
@@ -421,11 +419,13 @@ class AADI_Settings {
 		// gracefully instead of fataling.
 		$prompt = wp_ai_client_prompt( 'test' );
 		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			ob_end_clean();
 			$enabled = false;
 			return $enabled;
 		}
 
 		$enabled = (bool) $prompt->is_supported_for_text_generation();
+		ob_end_clean();
 		return $enabled;
 	}
 
