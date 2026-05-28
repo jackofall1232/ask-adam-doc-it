@@ -2,9 +2,9 @@
 /**
  * Plugin Name:       Ask Adam Doc It
  * Plugin URI:        https://github.com/jackofall1232/ask-adam-doc-it
- * Description:       AI-powered document library for WordPress. Upload, organize, and semantically search files using OpenAI embeddings.
- * Version:           1.0.0
- * Requires at least: 6.0
+ * Description:       AI-powered document library for WordPress. Upload, organize, and semantically search files using the WordPress 7.0 built-in AI Client.
+ * Version:           1.2.1
+ * Requires at least: 7.0
  * Requires PHP:      7.4
  * Author:            Ask Adam
  * Author URI:        https://askadamit.com
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants.
  */
-define( 'AADI_VERSION', '1.0.0' );
+define( 'AADI_VERSION', '1.2.1' );
 define( 'AADI_PLUGIN_FILE', __FILE__ );
 define( 'AADI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AADI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -31,7 +31,7 @@ define( 'AADI_CPT', 'aadi_file' );
 define( 'AADI_TAXONOMY', 'aadi_category' );
 define( 'AADI_DB_VERSION', '1.0' );
 define( 'AADI_MIN_PHP', '7.4' );
-define( 'AADI_MIN_WP', '6.0' );
+define( 'AADI_MIN_WP', '7.0' );
 
 /**
  * Environment compatibility check.
@@ -91,7 +91,6 @@ function aadi_load_files() {
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-loader.php';
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-cpt.php';
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-settings.php';
-	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-openai.php';
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-embeddings.php';
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-search.php';
 	require_once AADI_PLUGIN_DIR . 'includes/class-aadi-shortcode.php';

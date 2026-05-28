@@ -13,10 +13,10 @@
 		return;
 	}
 
+	// The summarize button can appear on single document pages that have no
+	// search form, so bind that handler regardless (see section 5). Only the
+	// search-form wiring below is gated on a form being present.
 	var $forms = $( '.aadi-search-form' );
-	if ( ! $forms.length ) {
-		return;
-	}
 
 	/* 1. Per-form AJAX submit handler
 	------------------------------------------------------------ */
@@ -102,6 +102,14 @@
 						escHtml( aadiPublic.strings.download ) +
 					'</a>';
 			}
+			var summarize = '';
+			if ( aadiPublic.summarizeEnabled ) {
+				summarize =
+					'<button type="button" class="aadi-summarize-btn" data-post-id="' + escHtml( String( post.id ) ) + '">' +
+						escHtml( aadiPublic.strings.summarize ) +
+					'</button>' +
+					'<div class="aadi-summary-output" aria-live="polite"></div>';
+			}
 			html +=
 				'<li class="aadi-file-card">' +
 					'<div class="aadi-file-icon">' +
@@ -113,6 +121,7 @@
 						'</a>' +
 						'<span class="aadi-file-meta">' + escHtml( post.meta_text || '' ) + '</span>' +
 						downloadLink +
+						summarize +
 					'</div>' +
 				'</li>';
 		} );
@@ -137,7 +146,54 @@
 		);
 	}
 
-	/* 4. Minimal XSS guard for JS-rendered output
+	/* 4. Summarize button — delegated so it also covers AJAX-rendered cards
+	------------------------------------------------------------ */
+	$( document ).on( 'click', '.aadi-summarize-btn', function () {
+		var $btn    = $( this );
+		var postId  = $btn.data( 'post-id' );
+		var $output = $btn.nextAll( '.aadi-summary-output' ).first();
+
+		if ( ! postId || $btn.prop( 'disabled' ) ) {
+			return;
+		}
+
+		var originalBtn = $btn.data( 'aadi-original-text' );
+		if ( typeof originalBtn === 'undefined' ) {
+			originalBtn = $btn.text();
+			$btn.data( 'aadi-original-text', originalBtn );
+		}
+
+		$btn.prop( 'disabled', true ).text( aadiPublic.strings.summarizing );
+		$output
+			.removeClass( 'is-error' )
+			.addClass( 'is-loading' )
+			.text( aadiPublic.strings.summarizing );
+
+		$.post( aadiPublic.ajax_url, {
+			action:  'aadi_summarize',
+			nonce:   aadiPublic.nonce,
+			post_id: postId
+		} )
+			.done( function ( response ) {
+				if ( response && response.success && response.data && response.data.summary ) {
+					$output.removeClass( 'is-error' ).text( response.data.summary );
+				} else {
+					var msg = ( response && response.data && response.data.message )
+						? response.data.message
+						: aadiPublic.strings.summarize_error;
+					$output.addClass( 'is-error' ).text( msg );
+				}
+			} )
+			.fail( function () {
+				$output.addClass( 'is-error' ).text( aadiPublic.strings.summarize_error );
+			} )
+			.always( function () {
+				$output.removeClass( 'is-loading' );
+				$btn.prop( 'disabled', false ).text( originalBtn || aadiPublic.strings.summarize );
+			} );
+	} );
+
+	/* 5. Minimal XSS guard for JS-rendered output
 	------------------------------------------------------------ */
 	function escHtml( str ) {
 		if ( typeof str !== 'string' ) {

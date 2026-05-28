@@ -21,6 +21,12 @@ class AADI_Public {
 	const RATE_LIMIT_PER_HOUR = 60;
 
 	/**
+	 * Site-wide cap on fresh (uncached) summary generations per hour.
+	 * Cached repeats never count against this bucket.
+	 */
+	const SUMMARIZE_RATE_LIMIT_PER_HOUR = 30;
+
+	/**
 	 * Constructor. Intentionally side-effect-free — all hooks live in
 	 * AADI_Loader::define_public_hooks() and define_ajax_hooks().
 	 */
@@ -104,14 +110,18 @@ class AADI_Public {
 			'ask-adam-doc-it-public',
 			'aadiPublic',
 			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'aadi_public_search' ),
-				'strings'  => array(
-					'searching'  => __( 'Searching...', 'ask-adam-doc-it' ),
-					'no_results' => __( 'No documents found.', 'ask-adam-doc-it' ),
-					'error'      => __( 'Search error. Please try again.', 'ask-adam-doc-it' ),
-					'search'     => __( 'Search', 'ask-adam-doc-it' ),
-					'download'   => __( 'Download', 'ask-adam-doc-it' ),
+				'ajax_url'         => admin_url( 'admin-ajax.php' ),
+				'nonce'            => wp_create_nonce( 'aadi_public_search' ),
+				'summarizeEnabled' => AADI_Settings::is_summarize_enabled(),
+				'strings'          => array(
+					'searching'       => __( 'Searching...', 'ask-adam-doc-it' ),
+					'no_results'      => __( 'No documents found.', 'ask-adam-doc-it' ),
+					'error'           => __( 'Search error. Please try again.', 'ask-adam-doc-it' ),
+					'search'          => __( 'Search', 'ask-adam-doc-it' ),
+					'download'        => __( 'Download', 'ask-adam-doc-it' ),
+					'summarize'       => __( 'Summarize', 'ask-adam-doc-it' ),
+					'summarizing'     => __( 'Summarizing...', 'ask-adam-doc-it' ),
+					'summarize_error' => __( 'Could not generate a summary. Please try again.', 'ask-adam-doc-it' ),
 				),
 			)
 		);
@@ -201,6 +211,30 @@ class AADI_Public {
 
 		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
 		return $mode;
+	}
+
+	/**
+	 * Site-wide hourly throttle for fresh summary generations.
+	 *
+	 * Mirrors apply_rate_limit(): a single salted, PII-free hourly bucket.
+	 * Returns false once the cap is reached so the caller can refuse the
+	 * generation. Only invoked on cache misses, so cached repeats are free.
+	 *
+	 * @return bool True if a fresh generation is allowed; false if capped.
+	 */
+	public static function apply_summarize_rate_limit() {
+		$window = gmdate( 'Y-m-d-H' );
+		$salt   = wp_salt( 'auth' );
+		$token  = hash( 'sha256', 'summarize' . $window . $salt );
+		$key    = 'aadi_sum_rl_' . substr( $token, 0, 40 );
+		$count  = (int) get_transient( $key );
+
+		if ( $count >= self::SUMMARIZE_RATE_LIMIT_PER_HOUR ) {
+			return false;
+		}
+
+		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+		return true;
 	}
 
 	/**
@@ -311,6 +345,153 @@ class AADI_Public {
 				'total'     => absint( $results['total'] ),
 				'pages'     => absint( $results['pages'] ),
 				'mode_used' => sanitize_key( $results['mode_used'] ),
+			)
+		);
+		wp_die();
+	}
+
+	/**
+	 * Handle AJAX document-summarize request.
+	 *
+	 * Returns a short AI-written summary of the document's *attached file*
+	 * via the WordPress 7.0 AI Client (wp_ai_client_prompt()->with_file()).
+	 * The file itself is the source of truth — the admin-entered summary
+	 * meta is no longer used. Results are cached in a transient keyed by
+	 * post ID + the file's modification time, so the cache auto-invalidates
+	 * when the file is replaced and repeat clicks serve from cache without a
+	 * new generation call. Only cache misses consume the site-wide hourly
+	 * generation bucket.
+	 *
+	 * @return void
+	 */
+	public function handle_summarize_ajax() {
+		check_ajax_referer( 'aadi_public_search', 'nonce' );
+
+		$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+
+		if ( ! AADI_Settings::is_summarize_enabled() ) {
+			wp_send_json_error( array( 'message' => __( 'Summaries are not available.', 'ask-adam-doc-it' ) ) );
+		}
+
+		$post = get_post( $post_id );
+		if ( ! ( $post instanceof WP_Post ) || AADI_CPT !== $post->post_type || 'publish' !== $post->post_status ) {
+			wp_send_json_error( array( 'message' => __( 'Document not found.', 'ask-adam-doc-it' ) ) );
+		}
+
+		// Password-protected documents must not leak their contents (title,
+		// excerpt, admin summary) to anonymous visitors via a summary.
+		if ( '' !== (string) $post->post_password ) {
+			wp_send_json_error( array( 'message' => __( 'Protected documents cannot be summarized.', 'ask-adam-doc-it' ) ) );
+		}
+
+		// The attached file is the source of truth — summarize the actual
+		// document, not the admin-entered metadata.
+		$file_id = absint( get_post_meta( $post_id, '_aadi_file_id', true ) );
+		if ( $file_id <= 0 ) {
+			wp_send_json_error( array( 'message' => __( 'No file is attached to this document.', 'ask-adam-doc-it' ) ) );
+		}
+
+		$file_path = get_attached_file( $file_id );
+		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
+			wp_send_json_error( array( 'message' => __( 'The attached file could not be found.', 'ask-adam-doc-it' ) ) );
+		}
+
+		// Only text-bearing document types can be summarized. Images, audio,
+		// and video carry no extractable prose for a short written summary.
+		$mime_type    = (string) get_post_meta( $post_id, '_aadi_file_type', true );
+		$summarizable = array(
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'text/plain',
+			'text/csv',
+		);
+		if ( ! in_array( $mime_type, $summarizable, true ) ) {
+			wp_send_json_error( array( 'message' => __( 'AI summarization is not available for this file type.', 'ask-adam-doc-it' ) ) );
+		}
+
+		// Cache key derives from the file's modification time so it
+		// auto-invalidates whenever the underlying file is replaced.
+		$cache_key = 'aadi_sum_' . $post_id . '_' . substr( md5( filemtime( $file_path ) . $post_id ), 0, 16 );
+		$cached    = get_transient( $cache_key );
+		if ( is_string( $cached ) && '' !== $cached ) {
+			wp_send_json_success(
+				array(
+					'summary' => $cached,
+					'cached'  => true,
+				)
+			);
+		}
+
+		// Fresh generation — throttle to protect the API budget.
+		if ( ! self::apply_summarize_rate_limit() ) {
+			wp_send_json_error( array( 'message' => __( 'The summary service is busy right now. Please try again later.', 'ask-adam-doc-it' ) ) );
+		}
+
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			wp_send_json_error( array( 'message' => __( 'AI features require WordPress 7.0 or higher.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		// wp_ai_client_prompt() may return a WP_Error if the AI Client cannot
+		// initialize. Assign and guard before chaining so a misconfigured
+		// client returns a clean error instead of fataling the request.
+		$prompt = wp_ai_client_prompt();
+		if ( is_wp_error( $prompt ) || ! is_object( $prompt ) ) {
+			if ( is_wp_error( $prompt ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $prompt->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		// The AI Client File DTO accepts a URL, data URI, or local file path
+		// (it reads and base64-encodes the file itself) — not raw bytes — and
+		// throws InvalidArgumentException/RuntimeException on bad or unreadable
+		// input. Build it inside a try/catch so those exceptions surface as a
+		// clean JSON error instead of fataling this public AJAX request.
+		try {
+			$result = $prompt
+				->with_file(
+					new \WordPress\AiClient\Files\DTO\File( $file_path, $mime_type )
+				)
+				->using_system_instruction(
+					'You are a helpful assistant that writes concise plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences only. No preamble, no markdown, no bullet points.'
+				)
+				->with_text( 'Summarize this document in 2-3 sentences.' )
+				->using_max_tokens( 200 )
+				->generate_text();
+		} catch ( \Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		if ( is_wp_error( $result ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Ask Adam Doc It [summarize]: ' . $result->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			wp_send_json_error( array( 'message' => __( 'Could not generate summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		$summary = sanitize_text_field( $result );
+
+		// Some providers can return an empty string without a WP_Error. Don't
+		// cache or surface a blank summary as a success.
+		if ( '' === trim( $summary ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not generate a summary. Please try again.', 'ask-adam-doc-it' ) ) );
+			wp_die();
+		}
+
+		set_transient( $cache_key, $summary, WEEK_IN_SECONDS );
+
+		wp_send_json_success(
+			array(
+				'summary' => $summary,
+				'cached'  => false,
 			)
 		);
 		wp_die();
