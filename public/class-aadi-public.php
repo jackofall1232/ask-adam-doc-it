@@ -353,10 +353,11 @@ class AADI_Public {
 	/**
 	 * Handle AJAX document-summarize request.
 	 *
-	 * Returns a short GPT-written summary for a document. Results are cached
-	 * in a transient keyed by post ID + a hash of the source text, so repeat
-	 * clicks on any document serve from cache without a new OpenAI call. Only
-	 * cache misses consume the site-wide hourly generation bucket.
+	 * Returns a short AI-written summary for a document via the WordPress 7.0
+	 * AI Client (wp_ai_client_prompt()). Results are cached in a transient
+	 * keyed by post ID + a hash of the source text, so repeat clicks on any
+	 * document serve from cache without a new generation call. Only cache
+	 * misses consume the site-wide hourly generation bucket.
 	 *
 	 * @return void
 	 */
@@ -418,37 +419,37 @@ class AADI_Public {
 			);
 		}
 
-		// Don't spend the rate-limit budget on a request that cannot succeed:
-		// is_configured() covers a missing/invalid key and a tripped auth
-		// circuit breaker.
-		$openai = new AADI_OpenAI( AADI_Settings::get_option( 'openai_api_key', '' ) );
-		if ( ! $openai->is_configured() ) {
-			wp_send_json_error( array( 'message' => __( 'The summary service is currently unavailable.', 'ask-adam-doc-it' ) ) );
-		}
+		// Don't spend the rate-limit budget on a request that cannot succeed.
+		// is_summarize_enabled() (checked above) already confirms the AI
+		// Client is available and supports text generation.
 
 		// Fresh generation — throttle to protect the API budget.
 		if ( ! self::apply_summarize_rate_limit() ) {
 			wp_send_json_error( array( 'message' => __( 'The summary service is busy right now. Please try again later.', 'ask-adam-doc-it' ) ) );
 		}
 
-		$messages = array(
-			array(
-				'role'    => 'system',
-				'content' => 'You are a helpful assistant that writes concise, plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences. No preamble, no markdown, no bullet points.',
-			),
-			array(
-				'role'    => 'user',
-				'content' => $source . "\n\nWrite a 2-3 sentence plain-English summary of this document.",
-			),
-		);
+		$result = wp_ai_client_prompt( $source )
+			->using_system_instruction(
+				'You are a helpful assistant that writes concise, plain-English summaries of documents to help a reader decide whether to download them. Reply with 2-3 sentences. No preamble, no markdown, no bullet points.'
+			)
+			->using_max_tokens( 150 )
+			->generate_text();
 
-		$summary = $openai->chat_completion( $messages, AADI_OpenAI::CHAT_MODEL_SNAPSHOT, 150 );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Could not generate summary.', 'ask-adam-doc-it' ),
+				)
+			);
+			wp_die();
+		}
 
-		if ( false === $summary || '' === trim( (string) $summary ) ) {
+		$summary = sanitize_text_field( $result );
+
+		if ( '' === trim( $summary ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not generate a summary. Please try again.', 'ask-adam-doc-it' ) ) );
 		}
 
-		$summary = sanitize_text_field( $summary );
 		set_transient( $cache_key, $summary, WEEK_IN_SECONDS );
 
 		wp_send_json_success(

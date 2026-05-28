@@ -152,9 +152,8 @@ class AADI_Search {
 			return $this->core_search( $query, $args );
 		}
 
-		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new AADI_OpenAI( $key );
-		$query_vec = $openai->get_embedding( sanitize_text_field( $query ) );
+		$embeddings = new AADI_Embeddings();
+		$query_vec  = $embeddings->embed_text( sanitize_text_field( $query ) );
 
 		if ( false === $query_vec ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -197,8 +196,7 @@ class AADI_Search {
 		// issuing its own SELECT — turns N queries into 1.
 		update_meta_cache( 'post', $post_ids );
 
-		$embeddings = new AADI_Embeddings();
-		$scored     = array();
+		$scored = array();
 
 		foreach ( $post_ids as $post_id ) {
 			$doc_vec = $embeddings->get_embedding( $post_id );

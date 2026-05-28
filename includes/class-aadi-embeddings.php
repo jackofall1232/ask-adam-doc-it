@@ -24,6 +24,15 @@ class AADI_Embeddings {
 	const META_KEY_INFO = '_aadi_embedding_info';
 	const CRON_HOOK     = 'aadi_generate_embedding';
 
+	// Embedding model parameters. The WordPress 7.0 AI Client does not yet
+	// expose embedding generation, so embeddings are still produced by a
+	// direct OpenAI REST call (see request_embedding()).
+	const EMBEDDING_MODEL     = 'text-embedding-3-small';
+	const EMBEDDING_DIMS      = 1536;
+	const MAX_EMBEDDING_CHARS = 8000;
+	const API_BASE            = 'https://api.openai.com/v1';
+	const REQUEST_TIMEOUT     = 15;
+
 	/**
 	 * Constructor. Intentionally side-effect-free — all hooks live in
 	 * AADI_Loader::define_core_hooks().
@@ -109,9 +118,7 @@ class AADI_Embeddings {
 			return;
 		}
 
-		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new AADI_OpenAI( $key );
-		$embedding = $openai->get_embedding( $text );
+		$embedding = $this->request_embedding( $text );
 
 		if ( false === $embedding ) {
 			return;
@@ -173,8 +180,8 @@ class AADI_Embeddings {
 		$text = (string) $text;
 		// mb_substr to avoid splitting UTF-8 sequences when truncating.
 		$text = function_exists( 'mb_substr' )
-			? mb_substr( $text, 0, AADI_OpenAI::MAX_EMBEDDING_CHARS, 'UTF-8' )
-			: substr( $text, 0, AADI_OpenAI::MAX_EMBEDDING_CHARS );
+			? mb_substr( $text, 0, self::MAX_EMBEDDING_CHARS, 'UTF-8' )
+			: substr( $text, 0, self::MAX_EMBEDDING_CHARS );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'AADI_DEBUG' ) && AADI_DEBUG ) {
 			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions
@@ -237,7 +244,7 @@ class AADI_Embeddings {
 			self::META_KEY_INFO,
 			wp_json_encode(
 				array(
-					'model'         => AADI_OpenAI::EMBEDDING_MODEL,
+					'model'         => self::EMBEDDING_MODEL,
 					'dims'          => count( $embedding ),
 					'generated_at'  => current_time( 'mysql' ),
 					'source_length' => strlen( $text ),
@@ -270,9 +277,7 @@ class AADI_Embeddings {
 			return false;
 		}
 
-		$key       = (string) AADI_Settings::get_option( 'openai_api_key', '' );
-		$openai    = new AADI_OpenAI( $key );
-		$embedding = $openai->get_embedding( $text );
+		$embedding = $this->request_embedding( $text );
 
 		if ( false === $embedding ) {
 			return false;
@@ -286,6 +291,95 @@ class AADI_Embeddings {
 		$this->write_info( $post_id, $embedding, $text );
 
 		return true;
+	}
+
+	/**
+	 * Public entry point to embed an arbitrary string (e.g. a search query).
+	 *
+	 * @param string $text Text to embed.
+	 * @return array<int,float>|false Embedding vector or false on failure.
+	 */
+	public function embed_text( $text ) {
+		return $this->request_embedding( $text );
+	}
+
+	/**
+	 * Generate an embedding vector for the given text.
+	 *
+	 * TODO: Replace with wp_ai_client_prompt() embedding support
+	 * when WordPress AI Client adds embedding generation.
+	 * Requires: AI Provider for OpenAI plugin installed and configured.
+	 * See: https://wordpress.org/plugins/ai-provider-for-openai/
+	 *
+	 * The WordPress 7.0 AI Client does not yet expose embedding generation,
+	 * so this still calls the OpenAI REST API directly. The API key is no
+	 * longer stored in plugin settings; install the official "AI Provider
+	 * for OpenAI" plugin (https://wordpress.org/plugins/ai-provider-for-openai/),
+	 * which registers the credential through the core Connectors API, or
+	 * supply a key via the `aadi_openai_api_key` filter. When no key and no
+	 * AI Client are available the method degrades gracefully to false so the
+	 * search path falls back to keyword search.
+	 *
+	 * @param string $text Text to embed.
+	 * @return array<int,float>|false Embedding vector or false on failure.
+	 */
+	private function request_embedding( $text ) {
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			return false;
+		}
+
+		/** Filter the OpenAI API key used for embedding generation. Empty by default. */
+		$api_key = (string) apply_filters( 'aadi_openai_api_key', '' );
+		if ( '' === $api_key ) {
+			return false;
+		}
+
+		$text = trim( wp_strip_all_tags( (string) $text ) );
+		// mb_substr to avoid splitting UTF-8 sequences when truncating.
+		$text = function_exists( 'mb_substr' )
+			? mb_substr( $text, 0, self::MAX_EMBEDDING_CHARS, 'UTF-8' )
+			: substr( $text, 0, self::MAX_EMBEDDING_CHARS );
+		if ( '' === $text ) {
+			return false;
+		}
+
+		$response = wp_remote_post(
+			self::API_BASE . '/embeddings',
+			array(
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode(
+					array(
+						'model'           => self::EMBEDDING_MODEL,
+						'input'           => $text,
+						'encoding_format' => 'float',
+					)
+				),
+				'timeout' => self::REQUEST_TIMEOUT,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $decoded ) ) {
+			return false;
+		}
+		if ( ! isset( $decoded['data'][0]['embedding'] ) || ! is_array( $decoded['data'][0]['embedding'] ) ) {
+			return false;
+		}
+		if ( count( $decoded['data'][0]['embedding'] ) !== self::EMBEDDING_DIMS ) {
+			return false;
+		}
+
+		return $decoded['data'][0]['embedding'];
 	}
 
 	/**
@@ -326,7 +420,7 @@ class AADI_Embeddings {
 		if ( ! is_array( $embedding ) ) {
 			return false;
 		}
-		if ( count( $embedding ) !== AADI_OpenAI::EMBEDDING_DIMS ) {
+		if ( count( $embedding ) !== self::EMBEDDING_DIMS ) {
 			return false;
 		}
 		return $embedding;
@@ -375,11 +469,6 @@ class AADI_Embeddings {
 	 * @return string One of 'disabled' | 'missing' | 'stale' | 'current'.
 	 */
 	public function get_embedding_status( $post_id ) {
-		// Treat a tripped circuit breaker as disabled — the UI shouldn't
-		// offer actions that will hit a known-bad key.
-		if ( get_option( 'aadi_openai_auth_failed' ) ) {
-			return 'disabled';
-		}
 		if ( ! AADI_Settings::is_ai_enabled() ) {
 			return 'disabled';
 		}

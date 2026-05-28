@@ -81,7 +81,6 @@ $aadi_options = array(
 	'aadi_activated_at',
 	'aadi_flush_rewrite',
 	'aadi_delete_data_on_uninstall',
-	'aadi_openai_auth_failed',
 	'aadi_rewrite_version',
 );
 
