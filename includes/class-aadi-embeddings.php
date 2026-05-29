@@ -328,9 +328,37 @@ class AADI_Embeddings {
 			return false;
 		}
 
-		/** Filter the OpenAI API key used for embedding generation. Empty by default. */
-		$api_key = (string) apply_filters( 'aadi_openai_api_key', '' );
+		// Resolve the OpenAI API key mirroring the same precedence order
+		// used by the WordPress 7.0 Connectors API and the AI Provider for
+		// OpenAI plugin: env var → PHP constant → Connectors DB option.
+		// Core exposes no public getter for the resolved value, so the
+		// precedence is replicated here. The filter allows advanced users
+		// to override any resolved source.
+		$api_key = '';
+
+		$env_key = getenv( 'OPENAI_API_KEY' );
+		if ( is_string( $env_key ) && '' !== $env_key ) {
+			$api_key = $env_key;
+		}
+
+		if ( '' === $api_key && defined( 'OPENAI_API_KEY' ) ) {
+			$api_key = (string) OPENAI_API_KEY;
+		}
+
 		if ( '' === $api_key ) {
+			$api_key = (string) get_option( 'connectors_ai_openai_api_key', '' );
+		}
+
+		// Allow override of any resolved key.
+		$api_key = (string) apply_filters( 'aadi_openai_api_key', $api_key );
+
+		if ( '' === $api_key ) {
+			// Throttle the warning so a misconfigured site doesn't flood the
+			// debug log during bulk saves or repeated frontend searches.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! get_transient( 'aadi_key_warning_logged' ) ) {
+				set_transient( 'aadi_key_warning_logged', 1, HOUR_IN_SECONDS );
+				error_log( 'Ask Adam Doc It [embeddings]: No OpenAI API key found. Configure the AI Provider for OpenAI plugin under Settings → Connectors.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 			return false;
 		}
 
